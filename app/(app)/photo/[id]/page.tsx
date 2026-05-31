@@ -135,7 +135,7 @@ export default function PhotoDetailPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-paper">
-      <AppHeader title="" back />
+      <AppHeader back />
 
       <div className="flex-1 overflow-y-auto pb-28">
         {/* The print — full bleed, sitting on paper */}

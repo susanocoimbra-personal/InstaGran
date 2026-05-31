@@ -52,7 +52,7 @@ export default function AlbumsPage() {
 
   return (
     <>
-      <AppHeader title="Vovo" brand subtitle="Álbuns" />
+      <AppHeader title="Álbuns" avatar />
 
       <div className="mx-auto max-w-[440px] px-6">
         {loading ? (

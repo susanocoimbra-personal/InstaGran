@@ -137,7 +137,7 @@ export default function UploadPage() {
   if (done) {
     return (
       <>
-        <AppHeader title="Adicionar" back />
+        <AppHeader title="Adicionar" back avatar />
         <div className="flex min-h-[60vh] flex-col items-center justify-center px-8 text-center">
           <p className="font-serif text-[28px] italic leading-tight text-ink">Partilhado.</p>
           <p className="mt-3 text-[15px] text-ink-muted">A tua família já pode ver.</p>

@@ -113,7 +113,7 @@ export default function FeedPage() {
 
   return (
     <>
-      <AppHeader title="Vovo" brand subtitle="O diário da família" />
+      <AppHeader title="Feed" avatar />
 
       <div className="mx-auto max-w-[440px] px-6">
         <div className="flex items-center justify-end pt-4">

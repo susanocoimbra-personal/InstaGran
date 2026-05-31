@@ -1,50 +1,59 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
 
 interface AppHeaderProps {
-  title: string;
-  /** Renders the masthead: big serif "Vovo" wordmark + label subtitle. */
-  brand?: boolean;
-  /** Optional label shown under the wordmark when brand is true. */
-  subtitle?: string;
+  /** Serif section title shown on the left. */
+  title?: string;
+  /** Small letter-spaced eyebrow shown above/instead of the title. */
+  eyebrow?: string;
+  /** Back affordance on the left (drill-down screens). */
   back?: boolean;
+  /** Show the current user's avatar on the right, linking to /profile. */
+  avatar?: boolean;
 }
 
-// Editorial header. As a masthead (brand) it's a magazine cover line; otherwise
-// a quiet serif title with an optional back affordance.
-export default function AppHeader({ title, brand = false, subtitle, back = false }: AppHeaderProps) {
+// Slim editorial top bar. No wordmark — the section title (or eyebrow) sits on
+// the left, and on top-level screens the user's avatar sits on the right as the
+// way into their profile.
+export default function AppHeader({ title, eyebrow, back = false, avatar = false }: AppHeaderProps) {
   const router = useRouter();
-
-  if (brand) {
-    return (
-      <header
-        style={{ ['--safe-pad-top' as string]: '40px' }}
-        className="border-b border-line bg-paper px-6 pb-7 pt-10 safe-top"
-      >
-        {/* Tagline as an eyebrow above the wordmark — magazine masthead. */}
-        {subtitle && <p className="label mb-3 text-ink-muted">{subtitle}</p>}
-        <h1 className="font-serif text-[44px] leading-[1.05] tracking-wordmark text-ink">{title}</h1>
-      </header>
-    );
-  }
+  const { user } = useAuth();
 
   return (
     <header
-      style={{ ['--safe-pad-top' as string]: '12px' }}
-      className="sticky top-0 z-30 flex items-center gap-1 border-b border-line bg-paper/90 px-4 py-3 backdrop-blur safe-top"
+      style={{ ['--safe-pad-top' as string]: '16px' }}
+      className="sticky top-0 z-30 flex items-center gap-3 border-b border-line bg-paper/90 px-6 py-4 backdrop-blur safe-top"
     >
       {back && (
         <button
           type="button"
           onClick={() => router.back()}
           aria-label="Voltar"
-          className="-ml-1 flex h-11 w-11 items-center justify-center rounded-full text-2xl text-ink-soft active:bg-paper-dim"
+          className="-ml-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-2xl text-ink-soft active:bg-paper-dim"
         >
           ‹
         </button>
       )}
-      <h1 className="font-serif text-2xl text-ink">{title}</h1>
+
+      <div className="min-w-0 flex-1">
+        {eyebrow && <p className="label text-ink-muted">{eyebrow}</p>}
+        {title && (
+          <h1 className="font-serif text-[26px] leading-none tracking-wordmark text-ink">{title}</h1>
+        )}
+      </div>
+
+      {avatar && (
+        <Link
+          href="/profile"
+          aria-label="O teu perfil"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-line bg-paper-dim text-xl active:scale-95"
+        >
+          {user?.avatar_emoji || '👤'}
+        </Link>
+      )}
     </header>
   );
 }

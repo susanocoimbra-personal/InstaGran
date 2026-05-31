@@ -72,7 +72,7 @@ export default function ProfilePage() {
 
   return (
     <>
-      <AppHeader title="Vovo" brand subtitle="Perfil" />
+      <AppHeader title="Perfil" back />
 
       <div className="mx-auto max-w-[440px] px-6">
         {/* Identity */}
