@@ -27,22 +27,35 @@ export default function TabBar() {
   const tabs = TABS.filter((t) => !t.parentOnly || user?.role === 'parent');
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-around border-t border-line bg-paper/95 px-3 py-2 backdrop-blur safe-bottom">
+    <nav className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-around gap-2 border-t border-line bg-paper/95 px-6 py-3 backdrop-blur safe-bottom">
       {tabs.map((tab) => {
         const active =
           pathname === tab.href || (tab.href !== '/feed' && pathname.startsWith(tab.href));
+
+        // The add action is a round ink "+" button, sized and centred to read
+        // as the primary affordance without crowding the text tabs.
+        if (tab.cta) {
+          return (
+            <Link
+              key={tab.href}
+              href={tab.href}
+              aria-label={tab.label}
+              aria-current={active ? 'page' : undefined}
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-ink text-2xl font-light leading-none text-paper transition active:scale-95"
+            >
+              +
+            </Link>
+          );
+        }
+
         return (
           <Link
             key={tab.href}
             href={tab.href}
             aria-current={active ? 'page' : undefined}
-            className={
-              tab.cta
-                ? 'label flex min-h-[44px] items-center rounded-full bg-ink px-5 text-paper'
-                : `label flex min-h-[44px] items-center px-3 ${
-                    active ? 'text-ink' : 'text-ink-muted'
-                  }`
-            }
+            className={`label flex min-h-[44px] flex-1 items-center justify-center ${
+              active ? 'text-ink' : 'text-ink-muted'
+            }`}
           >
             {tab.label}
           </Link>

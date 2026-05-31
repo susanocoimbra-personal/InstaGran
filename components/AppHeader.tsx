@@ -18,9 +18,10 @@ export default function AppHeader({ title, brand = false, subtitle, back = false
 
   if (brand) {
     return (
-      <header className="border-b border-line bg-paper px-6 pb-5 pt-8 safe-top">
-        <h1 className="font-serif text-[40px] leading-none tracking-wordmark text-ink">{title}</h1>
-        {subtitle && <p className="label mt-2 text-ink-muted">{subtitle}</p>}
+      <header className="border-b border-line bg-paper px-6 pb-7 pt-10 safe-top">
+        {/* Tagline as an eyebrow above the wordmark — magazine masthead. */}
+        {subtitle && <p className="label mb-3 text-ink-muted">{subtitle}</p>}
+        <h1 className="font-serif text-[44px] leading-[1.05] tracking-wordmark text-ink">{title}</h1>
       </header>
     );
   }
