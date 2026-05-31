@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import AppHeader from '@/components/AppHeader';
@@ -19,22 +19,30 @@ export default function AlbumPhotosPage() {
 
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const fetchPhotos = useCallback(async () => {
-    let query = supabase
-      .from('photos')
-      .select('*, user:users!uploaded_by(*)')
-      .order('created_at', { ascending: false });
-    if (albumId) query = query.eq('album_id', albumId);
-
-    const { data } = await query;
-    if (data) setPhotos(data);
-    setLoading(false);
-  }, [albumId]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let active = true;
+
+    async function fetchPhotos() {
+      let query = supabase
+        .from('photos')
+        .select('*, user:users!uploaded_by(*)')
+        .order('created_at', { ascending: false });
+      if (albumId) query = query.eq('album_id', albumId);
+
+      const { data, error: queryError } = await query;
+      if (!active) return;
+      if (queryError) setError('Não foi possível carregar o álbum. Tenta outra vez.');
+      else if (data) setPhotos(data);
+      setLoading(false);
+    }
+
     fetchPhotos();
-  }, [fetchPhotos]);
+    return () => {
+      active = false;
+    };
+  }, [albumId]);
 
   return (
     <>
@@ -43,6 +51,10 @@ export default function AlbumPhotosPage() {
       {loading ? (
         <div className="flex justify-center pt-32">
           <Spinner />
+        </div>
+      ) : error ? (
+        <div className="mx-4 mt-4 rounded-2xl border border-danger/30 bg-danger/10 px-4 py-3 text-center text-base text-ink">
+          {error}
         </div>
       ) : photos.length === 0 ? (
         <div className="flex flex-col items-center px-8 pt-24 text-center">
@@ -77,6 +89,7 @@ export default function AlbumPhotosPage() {
                 <PhotoImage
                   path={photo.image_url}
                   alt={photo.caption || 'Foto'}
+                  width={400}
                   className="absolute inset-0 h-full w-full"
                 />
               </button>

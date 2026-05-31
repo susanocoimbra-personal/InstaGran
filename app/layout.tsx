@@ -22,8 +22,9 @@ export const viewport: Viewport = {
   themeColor: '#FAF7F4',
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  // Allow pinch-zoom — older users with low vision rely on it (WCAG 1.4.4).
+  maximumScale: 5,
+  userScalable: true,
   viewportFit: 'cover',
 };
 

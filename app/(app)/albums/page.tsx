@@ -45,14 +45,16 @@ export default function AlbumsPage() {
     setCreating(false);
   };
 
-  const handleDelete = (album: Album) => {
+  const handleDelete = async (album: Album) => {
     if (
-      confirm(
+      !confirm(
         `Queres apagar o álbum "${album.name}"? As fotos não serão apagadas, apenas desassociadas.`,
       )
     ) {
-      deleteAlbum(album.id).then(({ error }) => error && alert(error));
+      return;
     }
+    const { error } = await deleteAlbum(album.id);
+    if (error) alert(error);
   };
 
   const openAlbum = (albumId: string | null, name: string, emoji: string) => {
@@ -98,41 +100,34 @@ export default function AlbumsPage() {
               {albums.map((album, index) => {
                 const [from, to] = CARD_GRADIENTS[index % CARD_GRADIENTS.length];
                 return (
-                  <button
-                    key={album.id}
-                    type="button"
-                    onClick={() => openAlbum(album.id, album.name, album.emoji)}
-                    onContextMenu={(e) => {
-                      if (isParent) {
-                        e.preventDefault();
-                        handleDelete(album);
-                      }
-                    }}
-                    className="relative flex min-h-[180px] flex-col items-center justify-center overflow-hidden rounded-xl px-4 py-8 shadow-card active:scale-[0.98]"
-                    style={{ background: `linear-gradient(135deg, ${from}, ${to})` }}
-                  >
-                    <span className="absolute right-0 top-0 h-10 w-10 rounded-bl-[24px] bg-white/45" />
-                    <span className="mb-2 text-5xl">{album.emoji}</span>
-                    <span className="text-center text-base font-bold leading-tight text-ink">
-                      {album.name}
-                    </span>
-                    <span className="mt-1 text-xs font-medium text-ink-secondary">
-                      {album.photos_count} {album.photos_count === 1 ? 'foto' : 'fotos'}
-                    </span>
+                  <div key={album.id} className="relative">
+                    <button
+                      type="button"
+                      onClick={() => openAlbum(album.id, album.name, album.emoji)}
+                      aria-label={`Abrir álbum ${album.name}, ${album.photos_count} ${album.photos_count === 1 ? 'foto' : 'fotos'}`}
+                      className="flex min-h-[180px] w-full flex-col items-center justify-center overflow-hidden rounded-xl px-4 py-8 shadow-card active:scale-[0.98]"
+                      style={{ background: `linear-gradient(135deg, ${from}, ${to})` }}
+                    >
+                      <span className="absolute right-0 top-0 h-10 w-10 rounded-bl-[24px] bg-white/45" />
+                      <span className="mb-2 text-5xl">{album.emoji}</span>
+                      <span className="text-center text-base font-bold leading-tight text-ink">
+                        {album.name}
+                      </span>
+                      <span className="mt-1 text-xs font-medium text-ink-secondary">
+                        {album.photos_count} {album.photos_count === 1 ? 'foto' : 'fotos'}
+                      </span>
+                    </button>
                     {isParent && (
-                      <span
-                        role="button"
-                        aria-label="Apagar álbum"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(album);
-                        }}
-                        className="absolute bottom-1.5 right-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-white/70 text-xs text-ink-secondary"
+                      <button
+                        type="button"
+                        aria-label={`Apagar álbum ${album.name}`}
+                        onClick={() => handleDelete(album)}
+                        className="absolute bottom-1.5 right-1.5 flex h-11 w-11 items-center justify-center rounded-full bg-white/80 text-base text-ink-secondary shadow-soft active:scale-95"
                       >
                         🗑️
-                      </span>
+                      </button>
                     )}
-                  </button>
+                  </div>
                 );
               })}
             </div>
@@ -193,7 +188,8 @@ export default function AlbumsPage() {
               placeholder="Nome do álbum..."
               maxLength={30}
               autoFocus
-              className="mb-6 w-full rounded-2xl border border-line bg-background p-4 text-base text-ink outline-none placeholder:text-ink-light focus:border-primary"
+              aria-label="Nome do álbum"
+              className="mb-6 w-full rounded-2xl border border-line bg-background p-4 text-base text-ink outline-none placeholder:text-ink-secondary focus:border-primary focus:ring-2 focus:ring-primary/30"
             />
 
             <div className="flex gap-4">
@@ -211,7 +207,7 @@ export default function AlbumsPage() {
                 type="button"
                 onClick={handleCreate}
                 disabled={!newName.trim() || creating}
-                className="flex flex-1 items-center justify-center rounded-full bg-primary py-3 font-bold text-white disabled:opacity-50"
+                className="flex flex-1 items-center justify-center rounded-full bg-primary py-3 font-bold text-white disabled:bg-ink-light disabled:text-surface"
               >
                 {creating ? (
                   <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white" />

@@ -14,6 +14,9 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [shake, setShake] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  // Synchronous guard: state updates are async, so a ref is what actually
+  // prevents the auto-submit and a manual tap from both firing signIn.
+  const submittingRef = useRef(false);
 
   // Already signed in → go to feed.
   useEffect(() => {
@@ -29,39 +32,16 @@ export default function LoginPage() {
     setTimeout(() => setShake(false), 400);
   };
 
-  const handleSubmit = async () => {
-    if (pin.length < PIN_LENGTH) {
+  // Single submit path, guarded against concurrent calls. `value` defaults to
+  // current pin (manual button press) but is passed explicitly on auto-submit.
+  const submit = async (value: string = pin) => {
+    if (submittingRef.current) return;
+    if (value.length < PIN_LENGTH) {
       setError('Introduz o teu PIN de 6 dígitos');
       triggerShake();
       return;
     }
-    setLoading(true);
-    setError('');
-    const { error: signInError } = await signIn(pin);
-    if (signInError) {
-      setError('PIN errado. Tenta outra vez!');
-      setPin('');
-      triggerShake();
-      inputRef.current?.focus();
-    } else {
-      router.replace('/feed');
-    }
-    setLoading(false);
-  };
-
-  const handleChange = (value: string) => {
-    const cleaned = value.replace(/[^0-9]/g, '').slice(0, PIN_LENGTH);
-    setPin(cleaned);
-    setError('');
-    if (cleaned.length === PIN_LENGTH) {
-      // Auto-submit when the last digit lands.
-      setTimeout(() => handleSubmitWith(cleaned), 120);
-    }
-  };
-
-  // Submit using an explicit pin value (avoids state-timing races on auto-submit).
-  const handleSubmitWith = async (value: string) => {
-    if (value.length < PIN_LENGTH || loading) return;
+    submittingRef.current = true;
     setLoading(true);
     setError('');
     const { error: signInError } = await signIn(value);
@@ -70,10 +50,21 @@ export default function LoginPage() {
       setPin('');
       triggerShake();
       inputRef.current?.focus();
+      submittingRef.current = false;
+      setLoading(false);
     } else {
       router.replace('/feed');
+      // leave loading true through navigation; ref stays set to block re-entry
     }
-    setLoading(false);
+  };
+
+  const handleChange = (value: string) => {
+    const cleaned = value.replace(/[^0-9]/g, '').slice(0, PIN_LENGTH);
+    setPin(cleaned);
+    setError('');
+    if (cleaned.length === PIN_LENGTH) {
+      setTimeout(() => submit(cleaned), 120); // auto-submit when the last digit lands
+    }
   };
 
   return (
@@ -122,7 +113,7 @@ export default function LoginPage() {
           autoComplete="one-time-code"
           value={pin}
           onChange={(e) => handleChange(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+          onKeyDown={(e) => e.key === 'Enter' && submit()}
           maxLength={PIN_LENGTH}
           className="absolute h-px w-px opacity-0"
           aria-label="Introduzir PIN"
@@ -140,7 +131,7 @@ export default function LoginPage() {
         {/* Submit */}
         <button
           type="button"
-          onClick={handleSubmit}
+          onClick={() => submit()}
           disabled={loading}
           className="mb-6 flex min-h-[56px] min-w-[200px] items-center justify-center rounded-full bg-gradient-to-br from-primary-light via-primary to-primary-dark px-12 py-3.5 text-lg font-bold text-white shadow-lift transition active:scale-[0.98] disabled:opacity-60"
         >

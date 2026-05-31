@@ -69,6 +69,7 @@ function PhotoCard({
         <PhotoImage
           path={photo.image_url}
           alt={photo.caption || 'Foto de família'}
+          width={800}
           className="absolute inset-0 h-full w-full"
         />
       </div>
@@ -120,7 +121,7 @@ function EmptyState({ isParent }: { isParent: boolean }) {
 }
 
 export default function FeedPage() {
-  const { photos, loading, refreshing, refresh } = usePhotos();
+  const { photos, loading, refreshing, error, refresh } = usePhotos();
   const { user } = useAuth();
   const router = useRouter();
 
@@ -140,11 +141,17 @@ export default function FeedPage() {
         </button>
       </div>
 
+      {error && !loading && (
+        <div className="mx-4 mb-2 rounded-2xl border border-danger/30 bg-danger/10 px-4 py-3 text-center text-base text-ink">
+          {error}
+        </div>
+      )}
+
       {loading ? (
         <div className="flex justify-center pt-32">
           <Spinner />
         </div>
-      ) : photos.length === 0 ? (
+      ) : photos.length === 0 && !error ? (
         <EmptyState isParent={user?.role === 'parent'} />
       ) : (
         <div className="flex flex-col gap-6 pt-4">

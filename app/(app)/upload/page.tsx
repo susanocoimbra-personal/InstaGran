@@ -1,11 +1,13 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
 import { useAlbums } from '@/hooks/useAlbums';
 import AppHeader from '@/components/AppHeader';
+
+const MAX_IMAGES = 20;
 
 interface PickedImage {
   file: File;
@@ -35,14 +37,34 @@ export default function UploadPage() {
   const [selectedAlbum, setSelectedAlbum] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [done, setDone] = useState(false);
 
   const cameraRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
+  // Keep a live ref to the picked images so the unmount cleanup revokes the
+  // latest set without re-running on every change.
+  const imagesRef = useRef<PickedImage[]>([]);
+  imagesRef.current = images;
+
+  // Revoke any outstanding object URLs if the user leaves mid-flow.
+  useEffect(() => {
+    return () => {
+      imagesRef.current.forEach((img) => URL.revokeObjectURL(img.url));
+    };
+  }, []);
 
   const onFilesPicked = async (fileList: FileList | null) => {
     if (!fileList || fileList.length === 0) return;
-    const picked = await Promise.all(Array.from(fileList).slice(0, 20).map(readImage));
-    setImages((prev) => [...prev, ...picked]);
+    const all = Array.from(fileList);
+    const room = Math.max(MAX_IMAGES - images.length, 0);
+    if (all.length > room) {
+      setNotice(`Máximo ${MAX_IMAGES} fotos de uma vez. ${room > 0 ? `Foram adicionadas as primeiras ${room}.` : 'Remove algumas primeiro.'}`);
+    } else {
+      setNotice(null);
+    }
+    const picked = await Promise.all(all.slice(0, room).map(readImage));
+    setImages((prev) => [...prev, ...picked].slice(0, MAX_IMAGES));
   };
 
   const removeImage = (index: number) => {
@@ -56,9 +78,17 @@ export default function UploadPage() {
     if (images.length === 0 || !user) return;
     setUploading(true);
     setProgress(0);
+    setNotice(null);
 
     try {
       for (let i = 0; i < images.length; i++) {
+        // Re-check the session each iteration: if it expired (or the user
+        // logged out) mid-upload, stop instead of writing orphaned rows.
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (!session) throw new Error('A tua sessão terminou. Entra outra vez para continuar.');
+
         const img = images[i];
         const ext = (img.file.name.split('.').pop() || 'jpg').toLowerCase();
         const fileName = `${user.id}/${Date.now()}_${i}.${ext}`;
@@ -70,7 +100,7 @@ export default function UploadPage() {
             contentType: img.file.type || `image/${ext === 'jpg' ? 'jpeg' : ext}`,
             upsert: false,
           });
-        if (uploadError) throw uploadError;
+        if (uploadError) throw new Error(`Foto ${i + 1} de ${images.length}: ${uploadError.message}`);
 
         const { error: insertError } = await supabase.from('photos').insert({
           uploaded_by: user.id,
@@ -81,18 +111,21 @@ export default function UploadPage() {
           width: img.width || null,
           height: img.height || null,
         });
-        if (insertError) throw insertError;
+        if (insertError) throw new Error(`Foto ${i + 1} de ${images.length}: ${insertError.message}`);
 
         setProgress(i + 1);
       }
 
+      // Success: confirm briefly before navigating so older users see it landed.
       images.forEach((img) => URL.revokeObjectURL(img.url));
       setImages([]);
       setCaption('');
       setSelectedAlbum(null);
-      router.push('/feed');
-    } catch (err: any) {
-      alert(`Erro no upload: ${err.message || 'Tenta outra vez.'}`);
+      setDone(true);
+      setTimeout(() => router.push('/feed'), 1100);
+    } catch (err: unknown) {
+      // Keep the picked images + caption intact so the user can simply retry.
+      setNotice(err instanceof Error ? err.message : 'Erro no upload. Tenta outra vez.');
     } finally {
       setUploading(false);
       setProgress(0);
@@ -100,6 +133,19 @@ export default function UploadPage() {
   };
 
   const progressFraction = images.length > 0 ? progress / images.length : 0;
+
+  if (done) {
+    return (
+      <>
+        <AppHeader title="Nova Foto" />
+        <div className="flex min-h-[60vh] flex-col items-center justify-center px-8 text-center">
+          <span className="mb-4 text-7xl">🎉</span>
+          <h2 className="mb-1 text-2xl font-extrabold text-ink">Partilhado!</h2>
+          <p className="text-base text-ink-secondary">A tua família já pode ver.</p>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -124,6 +170,20 @@ export default function UploadPage() {
       />
 
       <div className="p-4">
+        {notice && (
+          <div className="mb-4 flex items-start justify-between gap-3 rounded-2xl border border-accent/40 bg-accent-light/40 px-4 py-3 text-base text-ink">
+            <span>{notice}</span>
+            <button
+              type="button"
+              onClick={() => setNotice(null)}
+              aria-label="Fechar aviso"
+              className="shrink-0 text-ink-secondary"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
         {images.length === 0 ? (
           <div className="flex min-h-[60vh] flex-col items-center justify-center">
             <span className="mb-4 text-7xl">📸</span>
@@ -168,17 +228,23 @@ export default function UploadPage() {
             {/* Preview grid */}
             <div className="mb-4 grid grid-cols-3 gap-2">
               {images.map((img, index) => (
+                // Blob URL is unique + stable per picked image, so it survives
+                // mid-list removals correctly (index would not).
                 <div key={img.url} className="relative aspect-square overflow-hidden rounded-xl shadow-soft">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={img.url} alt="" className="h-full w-full object-cover" />
+                  <img
+                    src={img.url}
+                    alt={`Foto selecionada ${index + 1}`}
+                    className="h-full w-full object-cover"
+                  />
                   <span className="absolute bottom-1.5 left-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-black/55 text-[11px] font-extrabold text-white">
                     {index + 1}
                   </span>
                   <button
                     type="button"
                     onClick={() => removeImage(index)}
-                    aria-label="Remover foto"
-                    className="absolute right-1 top-1 flex h-7 w-7 items-center justify-center rounded-full bg-danger/90 text-xs font-extrabold text-white shadow-soft"
+                    aria-label={`Remover foto ${index + 1}`}
+                    className="absolute right-0 top-0 flex h-11 w-11 items-center justify-center rounded-bl-xl rounded-tr-xl bg-danger/90 text-sm font-extrabold text-white shadow-soft active:scale-95"
                   >
                     ✕
                   </button>
@@ -236,8 +302,10 @@ export default function UploadPage() {
               placeholder="Adiciona uma legenda..."
               maxLength={200}
               rows={3}
-              className="mb-5 w-full resize-none rounded-2xl border border-line bg-surface p-4 text-base text-ink outline-none placeholder:text-ink-light focus:border-primary"
+              aria-label="Legenda da foto"
+              className="w-full resize-none rounded-2xl border border-line bg-surface p-4 text-base text-ink outline-none placeholder:text-ink-secondary focus:border-primary focus:ring-2 focus:ring-primary/30"
             />
+            <p className="mb-5 mt-1 pr-1 text-right text-xs text-ink-secondary">{caption.length}/200</p>
 
             {/* Submit */}
             <button

@@ -5,6 +5,8 @@ import { supabase } from '@/lib/supabase';
 import type { Photo, Comment, Reaction } from '@/types/database';
 import { useAuth } from './useAuth';
 
+type Result = { error: string | null };
+
 export function usePhotoDetail(photoId: string) {
   const { user } = useAuth();
   const [photo, setPhoto] = useState<Photo | null>(null);
@@ -39,7 +41,11 @@ export function usePhotoDetail(photoId: string) {
   }, [photoId]);
 
   useEffect(() => {
-    Promise.all([fetchPhoto(), fetchComments(), fetchReactions()]).then(() => setLoading(false));
+    Promise.all([fetchPhoto(), fetchComments(), fetchReactions()])
+      .catch(() => {
+        /* individual fetchers already no-op on error; ensure loading clears */
+      })
+      .finally(() => setLoading(false));
 
     const channel = supabase
       .channel(`photo-${photoId}`)
@@ -52,30 +58,60 @@ export function usePhotoDetail(photoId: string) {
         'postgres_changes',
         { event: '*', schema: 'public', table: 'reactions', filter: `photo_id=eq.${photoId}` },
         () => fetchReactions(),
-      )
-      .subscribe();
+      );
+
+    const subscription = channel.subscribe();
 
     return () => {
+      subscription.unsubscribe();
       supabase.removeChannel(channel);
     };
   }, [photoId, fetchPhoto, fetchComments, fetchReactions]);
 
-  const addComment = async (text: string) => {
-    if (!user) return;
-    await supabase.from('comments').insert({ photo_id: photoId, user_id: user.id, text });
+  const addComment = async (text: string): Promise<Result> => {
+    if (!user) return { error: 'Sessão terminada. Entra outra vez.' };
+    const { error } = await supabase.from('comments').insert({
+      photo_id: photoId,
+      user_id: user.id,
+      text,
+    });
+    return { error: error?.message || null };
   };
 
-  const toggleReaction = async (emoji: string) => {
-    if (!user) return;
+  const deleteComment = async (commentId: string): Promise<Result> => {
+    const { error } = await supabase.from('comments').delete().eq('id', commentId);
+    return { error: error?.message || null };
+  };
+
+  const toggleReaction = async (emoji: string): Promise<Result> => {
+    if (!user) return { error: 'Sessão terminada. Entra outra vez.' };
     const existing = reactions.find((r) => r.user_id === user.id && r.emoji === emoji);
     if (existing) {
-      await supabase.from('reactions').delete().eq('id', existing.id);
-    } else {
-      await supabase.from('reactions').insert({ photo_id: photoId, user_id: user.id, emoji });
+      const { error } = await supabase.from('reactions').delete().eq('id', existing.id);
+      return { error: error?.message || null };
     }
+    const { error } = await supabase.from('reactions').insert({
+      photo_id: photoId,
+      user_id: user.id,
+      emoji,
+    });
+    return { error: error?.message || null };
   };
 
-  const deletePhoto = async (): Promise<{ error: string | null }> => {
+  const updateCaption = async (caption: string): Promise<Result> => {
+    if (!user || user.role !== 'parent') return { error: 'Sem permissão' };
+    const { error } = await supabase
+      .from('photos')
+      .update({ caption: caption.trim() || null })
+      .eq('id', photoId);
+    if (error) return { error: error.message };
+    // No realtime subscription on the photos row here, so refresh it ourselves
+    // to reflect the new caption immediately.
+    await fetchPhoto();
+    return { error: null };
+  };
+
+  const deletePhoto = async (): Promise<Result> => {
     if (!user || user.role !== 'parent' || !photo) {
       return { error: 'Sem permissão' };
     }
@@ -91,14 +127,26 @@ export function usePhotoDetail(photoId: string) {
         .from('photos')
         .remove([photo.image_url])
         .then(({ error: storageErr }) => {
-          if (storageErr) console.warn('Storage cleanup error:', storageErr);
+          if (process.env.NODE_ENV === 'development' && storageErr) {
+            console.warn('Storage cleanup error:', storageErr);
+          }
         });
 
       return { error: null };
-    } catch (err: any) {
-      return { error: err.message || 'Erro ao apagar foto' };
+    } catch (err: unknown) {
+      return { error: err instanceof Error ? err.message : 'Erro ao apagar foto' };
     }
   };
 
-  return { photo, comments, reactions, loading, addComment, toggleReaction, deletePhoto };
+  return {
+    photo,
+    comments,
+    reactions,
+    loading,
+    addComment,
+    deleteComment,
+    toggleReaction,
+    updateCaption,
+    deletePhoto,
+  };
 }

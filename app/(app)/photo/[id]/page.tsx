@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { usePhotoDetail } from '@/hooks/usePhotoDetail';
 import { useAuth } from '@/hooks/useAuth';
@@ -16,11 +16,32 @@ export default function PhotoDetailPage() {
   const params = useParams<{ id: string }>();
   const photoId = params.id;
   const router = useRouter();
-  const { user } = useAuth();
-  const { photo, comments, reactions, loading, addComment, toggleReaction, deletePhoto } =
-    usePhotoDetail(photoId);
+  const { user, session, loading: authLoading } = useAuth();
+  const {
+    photo,
+    comments,
+    reactions,
+    loading,
+    addComment,
+    deleteComment,
+    toggleReaction,
+    updateCaption,
+    deletePhoto,
+  } = usePhotoDetail(photoId);
   const [commentText, setCommentText] = useState('');
   const [sending, setSending] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [editingCaption, setEditingCaption] = useState(false);
+  const [captionDraft, setCaptionDraft] = useState('');
+  const [savingCaption, setSavingCaption] = useState(false);
+
+  const isParent = user?.role === 'parent';
+
+  // If the session drops while viewing, bounce to login (the (app) layout only
+  // guards on mount; this catches an expiry that happens while we're here).
+  useEffect(() => {
+    if (!authLoading && !session) router.replace('/login');
+  }, [authLoading, session, router]);
 
   const reactionGroups = useMemo(
     () =>
@@ -48,16 +69,50 @@ export default function PhotoDetailPage() {
     const text = commentText.trim();
     if (!text) return;
     setSending(true);
-    await addComment(text);
-    setCommentText('');
+    const { error } = await addComment(text);
+    if (error) {
+      alert(`Não foi possível enviar: ${error}`); // keep the text so they can retry
+    } else {
+      setCommentText('');
+    }
     setSending(false);
   };
 
-  const handleDelete = async () => {
-    if (!confirm('Queres apagar esta foto?')) return;
-    const { error } = await deletePhoto();
+  const handleReaction = async (emoji: string) => {
+    const { error } = await toggleReaction(emoji);
     if (error) alert(error);
-    else router.back();
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    if (!confirm('Apagar este comentário?')) return;
+    const { error } = await deleteComment(commentId);
+    if (error) alert(error);
+  };
+
+  const startEditCaption = () => {
+    setCaptionDraft(photo.caption || '');
+    setEditingCaption(true);
+  };
+
+  const saveCaption = async () => {
+    setSavingCaption(true);
+    const { error } = await updateCaption(captionDraft);
+    setSavingCaption(false);
+    if (error) alert(error);
+    else setEditingCaption(false);
+  };
+
+  const handleDelete = async () => {
+    if (deleting) return;
+    if (!confirm('Queres apagar esta foto? Esta ação não pode ser desfeita.')) return;
+    setDeleting(true);
+    const { error } = await deletePhoto();
+    if (error) {
+      alert(error);
+      setDeleting(false);
+    } else {
+      router.back();
+    }
   };
 
   const handleDownload = async () => {
@@ -107,28 +162,87 @@ export default function PhotoDetailPage() {
               type="button"
               onClick={handleDownload}
               aria-label="Guardar foto"
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-alt text-lg active:scale-95"
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-surface-alt text-lg active:scale-95"
             >
               💾
             </button>
-            {user?.role === 'parent' && (
+            {isParent && (
               <button
                 type="button"
                 onClick={handleDelete}
+                disabled={deleting}
                 aria-label="Apagar foto"
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-danger/15 text-lg active:scale-95"
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-danger/15 text-lg active:scale-95 disabled:opacity-50"
               >
-                🗑️
+                {deleting ? (
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-danger/40 border-t-danger" />
+                ) : (
+                  '🗑️'
+                )}
               </button>
             )}
           </div>
         </div>
 
-        {/* Caption */}
-        {photo.caption ? (
-          <p className="px-4 pb-2 pt-1 text-lg font-medium leading-relaxed text-ink">
-            {photo.caption}
-          </p>
+        {/* Caption (parents can edit it inline) */}
+        {editingCaption ? (
+          <div className="px-4 pb-2 pt-1">
+            <textarea
+              value={captionDraft}
+              onChange={(e) => setCaptionDraft(e.target.value)}
+              maxLength={200}
+              rows={2}
+              autoFocus
+              aria-label="Editar legenda"
+              className="w-full resize-none rounded-2xl border border-line bg-surface p-3 text-base text-ink outline-none placeholder:text-ink-secondary focus:border-primary focus:ring-2 focus:ring-primary/30"
+              placeholder="Adiciona uma legenda..."
+            />
+            <div className="mt-2 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setEditingCaption(false)}
+                className="rounded-full px-4 py-2 text-sm font-semibold text-ink-secondary active:bg-surface-alt"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={saveCaption}
+                disabled={savingCaption}
+                className="flex items-center rounded-full bg-primary px-5 py-2 text-sm font-bold text-white disabled:opacity-50"
+              >
+                {savingCaption ? (
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                ) : (
+                  'Guardar'
+                )}
+              </button>
+            </div>
+          </div>
+        ) : photo.caption ? (
+          <div className="flex items-start gap-2 px-4 pb-2 pt-1">
+            <p className="flex-1 break-words text-lg font-medium leading-relaxed text-ink">
+              {photo.caption}
+            </p>
+            {isParent && (
+              <button
+                type="button"
+                onClick={startEditCaption}
+                aria-label="Editar legenda"
+                className="mt-1 shrink-0 text-base text-ink-secondary active:text-ink"
+              >
+                ✎
+              </button>
+            )}
+          </div>
+        ) : isParent ? (
+          <button
+            type="button"
+            onClick={startEditCaption}
+            className="px-4 pb-2 pt-1 text-base text-ink-secondary active:text-ink"
+          >
+            ✎ Adicionar legenda
+          </button>
         ) : null}
 
         {/* Reactions */}
@@ -140,9 +254,10 @@ export default function PhotoDetailPage() {
               <button
                 key={emoji}
                 type="button"
-                onClick={() => toggleReaction(emoji)}
+                onClick={() => handleReaction(emoji)}
                 aria-pressed={active}
-                className={`flex flex-1 items-center justify-center gap-1 rounded-2xl border-[1.5px] py-2.5 shadow-soft transition active:scale-95 ${
+                aria-label={`Reagir com ${emoji}`}
+                className={`flex min-h-[44px] flex-1 items-center justify-center gap-1 rounded-2xl border-[1.5px] py-3 shadow-soft transition active:scale-95 ${
                   active ? 'border-primary bg-primary/10' : 'border-line bg-surface'
                 }`}
               >
@@ -174,18 +289,31 @@ export default function PhotoDetailPage() {
           </div>
         ) : (
           <ul className="flex flex-col gap-1 px-4">
-            {comments.map((c) => (
-              <li key={c.id} className="flex items-start gap-2 py-1">
-                <span className="mt-1 text-2xl">{c.user?.avatar_emoji || '👤'}</span>
-                <div
-                  className="flex-1 rounded-2xl rounded-tl px-4 py-2"
-                  style={{ backgroundColor: getBubbleColor(c.user_id || c.id) }}
-                >
-                  <p className="mb-0.5 text-sm font-bold text-ink">{c.user?.name}</p>
-                  <p className="text-base leading-snug text-ink">{c.text}</p>
-                </div>
-              </li>
-            ))}
+            {comments.map((c) => {
+              const canDelete = c.user_id === user?.id || isParent;
+              return (
+                <li key={c.id} className="flex items-start gap-2 py-1">
+                  <span className="mt-1 text-2xl">{c.user?.avatar_emoji || '👤'}</span>
+                  <div
+                    className="flex-1 rounded-2xl rounded-tl px-4 py-2"
+                    style={{ backgroundColor: getBubbleColor(c.user_id || c.id) }}
+                  >
+                    <p className="mb-0.5 text-sm font-bold text-ink">{c.user?.name}</p>
+                    <p className="break-words text-base leading-snug text-ink">{c.text}</p>
+                  </div>
+                  {canDelete && (
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteComment(c.id)}
+                      aria-label="Apagar comentário"
+                      className="mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-base text-ink-light active:bg-surface-alt active:text-ink"
+                    >
+                      🗑️
+                    </button>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>
@@ -198,14 +326,15 @@ export default function PhotoDetailPage() {
           placeholder="Escreve um comentário..."
           rows={1}
           maxLength={500}
-          className="max-h-24 flex-1 resize-none rounded-full border border-line bg-background px-4 py-2.5 text-base text-ink outline-none placeholder:text-ink-light focus:border-primary"
+          aria-label="Escrever um comentário"
+          className="max-h-24 flex-1 resize-none rounded-3xl border border-line bg-background px-4 py-3 text-base text-ink outline-none placeholder:text-ink-secondary focus:border-primary focus:ring-2 focus:ring-primary/30"
         />
         <button
           type="button"
           onClick={handleSend}
           disabled={sending || !commentText.trim()}
           aria-label="Enviar comentário"
-          className="flex h-[42px] w-[42px] items-center justify-center rounded-full bg-primary text-xl text-white disabled:opacity-40"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-xl text-white disabled:opacity-40"
         >
           {sending ? (
             <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />

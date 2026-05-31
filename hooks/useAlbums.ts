@@ -7,19 +7,23 @@ import type { Album } from '@/types/database';
 export function useAlbums() {
   const [albums, setAlbums] = useState<Album[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchAlbums = useCallback(async () => {
-    const { data, error } = await supabase
+    const { data, error: queryError } = await supabase
       .from('albums')
       .select('*, photos:photos(count)')
       .order('created_at', { ascending: true });
 
-    if (!error && data) {
-      const mapped = data.map((a: any) => ({
+    if (queryError) {
+      setError('Não foi possível carregar os álbuns.');
+    } else if (data) {
+      const mapped = data.map((a: Album & { photos?: { count: number }[] }) => ({
         ...a,
         photos_count: a.photos?.[0]?.count || 0,
       }));
       setAlbums(mapped);
+      setError(null);
     }
     setLoading(false);
   }, []);
@@ -31,10 +35,12 @@ export function useAlbums() {
       .channel('albums-list')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'albums' }, () => {
         fetchAlbums();
-      })
-      .subscribe();
+      });
+
+    const subscription = channel.subscribe();
 
     return () => {
+      subscription.unsubscribe();
       supabase.removeChannel(channel);
     };
   }, [fetchAlbums]);
@@ -54,5 +60,5 @@ export function useAlbums() {
     return { error: error?.message || null };
   };
 
-  return { albums, loading, createAlbum, deleteAlbum, refresh: fetchAlbums };
+  return { albums, loading, error, createAlbum, deleteAlbum, refresh: fetchAlbums };
 }

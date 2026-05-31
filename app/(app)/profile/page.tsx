@@ -18,26 +18,54 @@ function roleLabel(role: string) {
   }
 }
 
+const PROFILE_EMOJIS = ['👨', '👩', '👵', '👴', '🧑', '👧', '👦', '🧓', '👶', '🐻', '🌷', '⭐'];
+
 export default function ProfilePage() {
-  const { user, signOut } = useAuth();
+  const { user, signOut, updateProfile } = useAuth();
   const router = useRouter();
   const [family, setFamily] = useState<User[]>([]);
 
+  const [editing, setEditing] = useState(false);
+  const [draftName, setDraftName] = useState('');
+  const [draftEmoji, setDraftEmoji] = useState('👤');
+  const [saving, setSaving] = useState(false);
+
   // Real family members from the DB (replaces the old hardcoded list).
+  // `active` guards against a state write after unmount.
   useEffect(() => {
+    let active = true;
     supabase
       .from('users')
       .select('id, name, role, avatar_emoji')
       .order('created_at', { ascending: true })
       .then(({ data }) => {
-        if (data) setFamily(data as User[]);
+        if (active && data) setFamily(data as User[]);
       });
-  }, []);
+    return () => {
+      active = false;
+    };
+  }, [user?.name, user?.avatar_emoji]); // refetch after the user edits their own profile
 
   const handleSignOut = async () => {
     if (!confirm('Tens a certeza que queres terminar sessão?')) return;
     await signOut();
     router.replace('/login');
+  };
+
+  const openEdit = () => {
+    if (!user) return;
+    setDraftName(user.name);
+    setDraftEmoji(user.avatar_emoji);
+    setEditing(true);
+  };
+
+  const saveProfile = async () => {
+    if (!draftName.trim()) return;
+    setSaving(true);
+    const { error } = await updateProfile({ name: draftName.trim(), avatar_emoji: draftEmoji });
+    setSaving(false);
+    if (error) alert(error);
+    else setEditing(false);
   };
 
   if (!user) return null;
@@ -69,6 +97,13 @@ export default function ProfilePage() {
           <span className="mt-2 rounded-full border border-line bg-surface-alt px-4 py-1.5 text-sm font-medium text-ink-secondary">
             {roleLabel(user.role)}
           </span>
+          <button
+            type="button"
+            onClick={openEdit}
+            className="mt-3 min-h-[44px] rounded-full px-5 py-2 text-sm font-semibold text-primary-dark active:bg-surface-alt"
+          >
+            ✎ Editar perfil
+          </button>
         </div>
       </div>
 
@@ -118,11 +153,78 @@ export default function ProfilePage() {
         <button
           type="button"
           onClick={handleSignOut}
-          className="px-6 py-2 text-sm font-medium text-ink-light active:text-ink-secondary"
+          className="min-h-[44px] px-6 py-2 text-sm font-medium text-ink-secondary active:text-ink"
         >
           Terminar sessão
         </button>
       </div>
+
+      {/* Edit profile modal */}
+      {editing && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 p-6"
+          onClick={() => setEditing(false)}
+        >
+          <div
+            className="w-full max-w-sm rounded-xl bg-surface p-6 shadow-lift"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-5 flex flex-col items-center">
+              <div className="mb-3 flex h-[72px] w-[72px] items-center justify-center rounded-full bg-surface-alt text-4xl">
+                {draftEmoji}
+              </div>
+              <h3 className="text-xl font-extrabold text-ink">Editar perfil</h3>
+            </div>
+
+            <div className="mb-5 flex flex-wrap justify-center gap-2">
+              {PROFILE_EMOJIS.map((emoji) => (
+                <button
+                  key={emoji}
+                  type="button"
+                  onClick={() => setDraftEmoji(emoji)}
+                  className={`flex h-12 w-12 items-center justify-center rounded-full border-2 text-2xl ${
+                    draftEmoji === emoji ? 'border-primary bg-primary/10' : 'border-transparent bg-background'
+                  }`}
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+
+            <input
+              value={draftName}
+              onChange={(e) => setDraftName(e.target.value)}
+              placeholder="O teu nome..."
+              maxLength={30}
+              autoFocus
+              aria-label="O teu nome"
+              className="mb-6 w-full rounded-2xl border border-line bg-background p-4 text-base text-ink outline-none placeholder:text-ink-secondary focus:border-primary focus:ring-2 focus:ring-primary/30"
+            />
+
+            <div className="flex gap-4">
+              <button
+                type="button"
+                onClick={() => setEditing(false)}
+                className="flex-1 rounded-full bg-surface-alt py-3 font-semibold text-ink-secondary"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={saveProfile}
+                disabled={!draftName.trim() || saving}
+                className="flex flex-1 items-center justify-center rounded-full bg-primary py-3 font-bold text-white disabled:bg-ink-light disabled:text-surface"
+              >
+                {saving ? (
+                  <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                ) : (
+                  'Guardar'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
