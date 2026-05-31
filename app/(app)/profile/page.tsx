@@ -132,6 +132,7 @@ export default function ProfilePage() {
           onClick={() => setEditing(false)}
         >
           <div
+            style={{ ['--safe-pad-bottom' as string]: '32px' }}
             className="w-full max-w-[440px] bg-paper p-6 pb-8 shadow-lift safe-bottom"
             onClick={(e) => e.stopPropagation()}
           >

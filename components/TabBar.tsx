@@ -27,7 +27,10 @@ export default function TabBar() {
   const tabs = TABS.filter((t) => !t.parentOnly || user?.role === 'parent');
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-around gap-2 border-t border-line bg-paper/95 px-6 py-3 backdrop-blur safe-bottom">
+    <nav
+      style={{ ['--safe-pad-bottom' as string]: '12px' }}
+      className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-around gap-2 border-t border-line bg-paper/95 px-6 py-3 backdrop-blur safe-bottom"
+    >
       {tabs.map((tab) => {
         const active =
           pathname === tab.href || (tab.href !== '/feed' && pathname.startsWith(tab.href));

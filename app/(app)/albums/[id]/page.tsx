@@ -47,7 +47,10 @@ export default function AlbumPhotosPage() {
   return (
     <>
       {/* Album masthead: emoji + serif title + count */}
-      <header className="border-b border-line bg-paper px-6 pb-5 pt-6 safe-top">
+      <header
+        style={{ ['--safe-pad-top' as string]: '24px' }}
+        className="border-b border-line bg-paper px-6 pb-5 pt-6 safe-top"
+      >
         <button
           type="button"
           onClick={() => router.back()}

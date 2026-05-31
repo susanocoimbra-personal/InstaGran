@@ -18,7 +18,10 @@ export default function AppHeader({ title, brand = false, subtitle, back = false
 
   if (brand) {
     return (
-      <header className="border-b border-line bg-paper px-6 pb-7 pt-10 safe-top">
+      <header
+        style={{ ['--safe-pad-top' as string]: '40px' }}
+        className="border-b border-line bg-paper px-6 pb-7 pt-10 safe-top"
+      >
         {/* Tagline as an eyebrow above the wordmark — magazine masthead. */}
         {subtitle && <p className="label mb-3 text-ink-muted">{subtitle}</p>}
         <h1 className="font-serif text-[44px] leading-[1.05] tracking-wordmark text-ink">{title}</h1>
@@ -27,7 +30,10 @@ export default function AppHeader({ title, brand = false, subtitle, back = false
   }
 
   return (
-    <header className="sticky top-0 z-30 flex items-center gap-1 border-b border-line bg-paper/90 px-4 py-3 backdrop-blur safe-top">
+    <header
+      style={{ ['--safe-pad-top' as string]: '12px' }}
+      className="sticky top-0 z-30 flex items-center gap-1 border-b border-line bg-paper/90 px-4 py-3 backdrop-blur safe-top"
+    >
       {back && (
         <button
           type="button"

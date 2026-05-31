@@ -26,12 +26,15 @@ body {
   font-weight: 500;
 }
 
-/* Respect iOS safe areas (notch / home indicator) for the installed PWA. */
+/* Respect iOS safe areas (notch / home indicator) for the installed PWA.
+   These ADD the inset on top of whatever padding the element already has, so
+   on desktop (inset = 0) the element keeps its normal Tailwind padding.
+   `--safe-pad` defaults to 0 and can be set per element to its base padding. */
 .safe-top {
-  padding-top: env(safe-area-inset-top);
+  padding-top: calc(var(--safe-pad-top, 0px) + env(safe-area-inset-top));
 }
 .safe-bottom {
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: calc(var(--safe-pad-bottom, 0px) + env(safe-area-inset-bottom));
 }
 
 .no-scrollbar {
