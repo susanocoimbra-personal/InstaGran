@@ -146,7 +146,7 @@ export default function PhotoDetailPage() {
 
       <div className="flex-1 overflow-y-auto pb-28">
         {/* The print(s) — a carousel when the post has several photos */}
-        <div className="mx-auto max-w-[560px]">
+        <div className="mx-auto w-full max-w-3xl px-0 sm:px-8 sm:pt-6">
           <Carousel
             photos={groupPhotos.length > 0 ? groupPhotos : [photo]}
             ratio={detailRatio}
@@ -155,7 +155,7 @@ export default function PhotoDetailPage() {
           />
         </div>
 
-        <div className="mx-auto max-w-[440px] px-6">
+        <div className="mx-auto w-full max-w-3xl px-6 sm:px-8">
           {/* Exhibition label: author · date, with quiet save/delete actions */}
           <div className="flex items-center justify-between gap-2 border-b border-line py-3.5">
             <span className="label text-ink-muted">
@@ -307,7 +307,7 @@ export default function PhotoDetailPage() {
 
       {/* Input bar */}
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-paper/95 backdrop-blur safe-bottom">
-        <div className="mx-auto flex max-w-[440px] items-end gap-3 px-6 py-3">
+        <div className="mx-auto flex w-full max-w-3xl items-end gap-3 px-6 py-3 sm:px-8">
           <textarea
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}

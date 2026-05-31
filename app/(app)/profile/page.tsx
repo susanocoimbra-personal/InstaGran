@@ -74,7 +74,7 @@ export default function ProfilePage() {
     <>
       <AppHeader title="Perfil" back />
 
-      <div className="mx-auto max-w-[440px] px-6">
+      <div className="w-full px-6 sm:px-8 lg:px-12">
         {/* Identity */}
         <div className="flex flex-col items-center border-b border-line py-10">
           <div className="flex h-24 w-24 items-center justify-center rounded-full border border-line bg-paper-dim">

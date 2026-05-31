@@ -110,7 +110,7 @@ export default function FeedPage() {
     <>
       <AppHeader title="Feed" avatar />
 
-      <div className="mx-auto max-w-[440px] px-6">
+      <div className="mx-auto max-w-2xl px-6 sm:px-8">
         <div className="flex items-center justify-end pt-4">
           <button
             type="button"

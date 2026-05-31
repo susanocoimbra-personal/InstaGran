@@ -54,7 +54,7 @@ export default function AlbumsPage() {
     <>
       <AppHeader title="Álbuns" avatar />
 
-      <div className="mx-auto max-w-[440px] px-6">
+      <div className="w-full px-6 sm:px-8 lg:px-12">
         {loading ? (
           <div className="flex justify-center pt-28">
             <Spinner />

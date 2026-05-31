@@ -184,7 +184,7 @@ export default function UploadPage() {
         onChange={(e) => onFilesPicked(e.target.files)}
       />
 
-      <div className="mx-auto max-w-[440px] px-6 pt-4">
+      <div className="w-full px-6 pt-4 sm:px-8 lg:px-12">
         {notice && (
           <div className="mb-5 flex items-start justify-between gap-3 border border-line bg-paper-dim px-4 py-3 text-[15px] text-ink">
             <span>{notice}</span>
@@ -231,7 +231,10 @@ export default function UploadPage() {
             </p>
 
             {/* Preview grid */}
-            <div className="mb-6 grid grid-cols-3 gap-2">
+            <div
+              className="mb-6 grid gap-2"
+              style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))' }}
+            >
               {images.map((img, index) => (
                 // Blob URL is unique + stable per picked image, so it survives
                 // mid-list removals correctly (index would not).

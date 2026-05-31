@@ -70,7 +70,7 @@ export default function AlbumPhotosPage() {
         )}
       </header>
 
-      <div className="mx-auto max-w-[440px] px-6">
+      <div className="w-full px-6 sm:px-8 lg:px-12">
         {loading ? (
           <div className="flex justify-center pt-28">
             <Spinner />
@@ -82,8 +82,11 @@ export default function AlbumPhotosPage() {
             Ainda sem fotografias neste álbum.
           </p>
         ) : (
-          // A tighter editorial grid: thin gutters, prints flush like a contact sheet.
-          <div className="grid grid-cols-2 gap-3 pt-6">
+          // Responsive contact sheet: more columns as the viewport widens.
+          <div
+            className="grid gap-3 pt-6"
+            style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))' }}
+          >
             {photos.map((photo) => (
               <button
                 key={photo.id}

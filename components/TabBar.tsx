@@ -28,7 +28,7 @@ export default function TabBar() {
   return (
     <nav
       style={{ ['--safe-pad-bottom' as string]: '12px' }}
-      className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-6 border-t border-line bg-paper/95 px-6 py-3 backdrop-blur safe-bottom"
+      className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-6 border-t border-line bg-paper/95 px-6 py-3 backdrop-blur sm:px-8 lg:px-12 safe-bottom"
     >
       {tabs.map((tab) => {
         const active =

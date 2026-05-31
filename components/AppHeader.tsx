@@ -25,7 +25,7 @@ export default function AppHeader({ title, eyebrow, back = false, avatar = false
   return (
     <header
       style={{ ['--safe-pad-top' as string]: '16px' }}
-      className="sticky top-0 z-30 flex items-center gap-3 border-b border-line bg-paper/90 px-6 py-4 backdrop-blur safe-top"
+      className="sticky top-0 z-30 flex items-center gap-3 border-b border-line bg-paper/90 px-6 py-4 backdrop-blur sm:px-8 lg:px-12 safe-top"
     >
       {back && (
         <button
