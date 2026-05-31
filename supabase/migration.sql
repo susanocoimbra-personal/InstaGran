@@ -62,10 +62,17 @@ create table if not exists public.photos (
   thumbnail_url text,
   caption text,
   album_id uuid references public.albums(id) on delete set null,
+  -- Photos uploaded together in one batch share a group_id, so the feed can
+  -- render them as a single carousel post (Instagram-style). A single photo
+  -- has group_id = null and shows on its own.
+  group_id uuid,
   width integer,
   height integer,
   created_at timestamptz not null default now()
 );
+
+-- Group lookups for the carousel.
+create index if not exists idx_photos_group on public.photos (group_id);
 
 alter table public.photos enable row level security;
 

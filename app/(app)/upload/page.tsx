@@ -80,6 +80,11 @@ export default function UploadPage() {
     setProgress(0);
     setNotice(null);
 
+    // Photos picked together become one carousel post: they share a group_id.
+    // A single photo stays ungrouped (null). If the DB column doesn't exist yet
+    // (migration not run), we retry the insert without it — graceful fallback.
+    let groupId: string | null = images.length > 1 ? crypto.randomUUID() : null;
+
     try {
       for (let i = 0; i < images.length; i++) {
         // Re-check the session each iteration: if it expired (or the user
@@ -102,15 +107,26 @@ export default function UploadPage() {
           });
         if (uploadError) throw new Error(`Foto ${i + 1} de ${images.length}: ${uploadError.message}`);
 
-        const { error: insertError } = await supabase.from('photos').insert({
+        const row: Record<string, unknown> = {
           uploaded_by: user.id,
           image_url: fileName,
-          // Caption goes on the first photo of a batch.
+          // Caption goes on the first photo of a batch (the carousel anchor).
           caption: i === 0 ? caption.trim() || null : null,
           album_id: selectedAlbum,
           width: img.width || null,
           height: img.height || null,
-        });
+        };
+        if (groupId) row.group_id = groupId;
+
+        let { error: insertError } = await supabase.from('photos').insert(row);
+
+        // If the group_id column isn't there yet, drop it and retry once;
+        // disable grouping for the rest of the batch too.
+        if (insertError && groupId && /group_id/.test(insertError.message)) {
+          groupId = null;
+          delete row.group_id;
+          ({ error: insertError } = await supabase.from('photos').insert(row));
+        }
         if (insertError) throw new Error(`Foto ${i + 1} de ${images.length}: ${insertError.message}`);
 
         setProgress(i + 1);

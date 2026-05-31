@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { publicPhotoUrl } from '@/lib/supabase';
 import AppHeader from '@/components/AppHeader';
 import Spinner from '@/components/Spinner';
-import PhotoImage from '@/components/PhotoImage';
+import Carousel from '@/components/Carousel';
 import { formatLongDate } from '@/lib/format';
 
 const REACTION_EMOJIS = ['❤️', '😍', '😂', '😮', '🥰', '👏'];
@@ -19,6 +19,7 @@ export default function PhotoDetailPage() {
   const { user, session, loading: authLoading } = useAuth();
   const {
     photo,
+    groupPhotos,
     comments,
     reactions,
     loading,
@@ -56,6 +57,12 @@ export default function PhotoDetailPage() {
       ),
     [reactions, user?.id],
   );
+
+  // Frame ratio from the anchor, clamped 1:1 .. 4:5, so carousel slides align.
+  const detailRatio =
+    photo && photo.width && photo.height && photo.width > 0
+      ? Math.min(5 / 4, Math.max(1, photo.height / photo.width))
+      : 1;
 
   if (loading || !photo) {
     return (
@@ -138,13 +145,13 @@ export default function PhotoDetailPage() {
       <AppHeader back />
 
       <div className="flex-1 overflow-y-auto pb-28">
-        {/* The print — full bleed, sitting on paper */}
-        <div className="bg-paper-dim">
-          <PhotoImage
-            path={photo.image_url}
-            alt={photo.caption || 'Fotografia de família'}
-            fit="cover"
-            className="max-h-[70vh] w-full"
+        {/* The print(s) — a carousel when the post has several photos */}
+        <div className="mx-auto max-w-[560px]">
+          <Carousel
+            photos={groupPhotos.length > 0 ? groupPhotos : [photo]}
+            ratio={detailRatio}
+            width={1100}
+            altPrefix={photo.caption || 'Fotografia de família'}
           />
         </div>
 

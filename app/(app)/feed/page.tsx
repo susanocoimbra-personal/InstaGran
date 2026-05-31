@@ -6,33 +6,35 @@ import { usePhotos } from '@/hooks/usePhotos';
 import { useAuth } from '@/hooks/useAuth';
 import AppHeader from '@/components/AppHeader';
 import Spinner from '@/components/Spinner';
-import PhotoImage from '@/components/PhotoImage';
+import Carousel from '@/components/Carousel';
+import { groupPhotos } from '@/lib/groupPhotos';
 import { formatPlateDate } from '@/lib/format';
-import type { Photo } from '@/types/database';
+import type { FeedPost } from '@/types/database';
 
-// A single plate in the diary: gallery label, framed print, italic caption,
-// quiet actions. The photograph carries all the colour; the chrome stays out.
+// A single plate in the diary: gallery label, framed print (or carousel),
+// italic caption, quiet actions. The anchor photo carries caption/reactions/
+// comments for the whole post (Instagram model).
 function Plate({
-  photo,
+  post,
   plateNo,
   onOpen,
   index,
 }: {
-  photo: Photo;
+  post: FeedPost;
   plateNo: string;
   onOpen: () => void;
   index: number;
 }) {
-  const reactionCount = (photo.reactions || []).length;
-  const commentsCount = photo.comments_count ?? 0;
+  const { anchor, photos } = post;
+  const reactionCount = (anchor.reactions || []).length;
+  const commentsCount = anchor.comments_count ?? 0;
 
-  // Clamp aspect ratio between 1:1 and 4:5 (portrait) so the column stays calm.
+  // Clamp aspect ratio between 1:1 and 4:5 (portrait) using the anchor, so a
+  // mixed-orientation group still shares one calm frame.
   const ratio =
-    photo.width && photo.height && photo.width > 0
-      ? Math.min(5 / 4, Math.max(1, photo.height / photo.width))
-      : 4 / 5 < 1
-        ? 1
-        : 4 / 5;
+    anchor.width && anchor.height && anchor.width > 0
+      ? Math.min(5 / 4, Math.max(1, anchor.height / anchor.width))
+      : 1;
 
   return (
     <figure
@@ -42,31 +44,24 @@ function Plate({
       {/* Gallery label: plate number — author · date */}
       <div className="mb-3 flex items-baseline justify-between gap-2">
         <span className="label text-ink-muted">
-          {plateNo} — {photo.user?.name || 'Família'}
+          {plateNo} — {anchor.user?.name || 'Família'}
         </span>
-        <span className="label text-ink-muted">{formatPlateDate(photo.created_at)}</span>
+        <span className="label text-ink-muted">{formatPlateDate(anchor.created_at)}</span>
       </div>
 
-      {/* The print */}
-      <button
-        type="button"
-        onClick={onOpen}
-        aria-label={`Ver foto de ${photo.user?.name || 'Família'}${photo.caption ? `, ${photo.caption}` : ''}`}
-        className="block w-full overflow-hidden bg-paper-dim shadow-print transition active:scale-[0.995]"
-        style={{ aspectRatio: `1 / ${ratio}` }}
-      >
-        <PhotoImage
-          path={photo.image_url}
-          alt={photo.caption || 'Fotografia de família'}
-          width={900}
-          className="h-full w-full"
-        />
-      </button>
+      {/* The print, or a carousel when the post has several photos */}
+      <Carousel
+        photos={photos}
+        ratio={ratio}
+        width={900}
+        onSelect={onOpen}
+        altPrefix={anchor.caption || `Fotografia de ${anchor.user?.name || 'família'}`}
+      />
 
       {/* Caption as exhibition text */}
-      {photo.caption && (
+      {anchor.caption && (
         <figcaption className="mx-auto mt-4 max-w-[34ch] text-center font-serif text-[20px] italic leading-snug text-ink">
-          “{photo.caption}”
+          “{anchor.caption}”
         </figcaption>
       )}
 
@@ -104,12 +99,12 @@ export default function FeedPage() {
   const { user } = useAuth();
   const router = useRouter();
 
-  // Newest photo gets the highest plate number, like a growing diary.
-  const total = photos.length;
-  const plate = useMemo(
-    () => (i: number) => String(total - i).padStart(2, '0'),
-    [total],
-  );
+  // Group photos uploaded together into single carousel posts.
+  const posts = useMemo(() => groupPhotos(photos), [photos]);
+
+  // Newest post gets the highest plate number, like a growing diary.
+  const total = posts.length;
+  const plate = (i: number) => String(total - i).padStart(2, '0');
 
   return (
     <>
@@ -142,13 +137,13 @@ export default function FeedPage() {
           <EmptyState isParent={user?.role === 'parent'} />
         ) : (
           <div className="pt-6">
-            {photos.map((photo, i) => (
+            {posts.map((post, i) => (
               <Plate
-                key={photo.id}
-                photo={photo}
+                key={post.anchor.id}
+                post={post}
                 plateNo={plate(i)}
                 index={i}
-                onOpen={() => router.push(`/photo/${photo.id}`)}
+                onOpen={() => router.push(`/photo/${post.anchor.id}`)}
               />
             ))}
           </div>

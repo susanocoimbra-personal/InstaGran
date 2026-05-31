@@ -28,6 +28,8 @@ export interface Photo {
   thumbnail_url: string | null;
   caption: string | null;
   album_id: string | null;
+  /** Photos uploaded together share a group_id; a lone photo has null. */
+  group_id?: string | null;
   width: number | null;
   height: number | null;
   created_at: string;
@@ -36,6 +38,14 @@ export interface Photo {
   album?: Album;
   comments_count?: number;
   reactions?: Reaction[];
+}
+
+// A feed entry: either a single photo or a group (carousel) of photos uploaded
+// together. The first photo is the "anchor" — it carries the caption,
+// reactions and comments for the whole post (Instagram model).
+export interface FeedPost {
+  anchor: Photo;
+  photos: Photo[];
 }
 
 export interface Comment {

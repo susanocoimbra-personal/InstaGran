@@ -10,6 +10,8 @@ type Result = { error: string | null };
 export function usePhotoDetail(photoId: string) {
   const { user } = useAuth();
   const [photo, setPhoto] = useState<Photo | null>(null);
+  // All photos in the post (carousel). Just [photo] for a single upload.
+  const [groupPhotos, setGroupPhotos] = useState<Photo[]>([]);
   const [comments, setComments] = useState<Comment[]>([]);
   const [reactions, setReactions] = useState<Reaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -20,7 +22,20 @@ export function usePhotoDetail(photoId: string) {
       .select('*, user:users!uploaded_by(*)')
       .eq('id', photoId)
       .single();
-    if (data) setPhoto(data);
+    if (!data) return;
+    setPhoto(data);
+
+    // If this photo belongs to a group, load its siblings for the carousel.
+    if (data.group_id) {
+      const { data: siblings } = await supabase
+        .from('photos')
+        .select('*, user:users!uploaded_by(*)')
+        .eq('group_id', data.group_id)
+        .order('created_at', { ascending: true });
+      setGroupPhotos(siblings && siblings.length > 0 ? siblings : [data]);
+    } else {
+      setGroupPhotos([data]);
+    }
   }, [photoId]);
 
   const fetchComments = useCallback(async () => {
@@ -140,6 +155,7 @@ export function usePhotoDetail(photoId: string) {
 
   return {
     photo,
+    groupPhotos,
     comments,
     reactions,
     loading,
