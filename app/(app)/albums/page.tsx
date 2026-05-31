@@ -10,20 +10,8 @@ import type { Album } from '@/types/database';
 
 const ALBUM_EMOJIS = ['📸', '🎄', '🏖️', '🎂', '🎉', '👶', '🏠', '🌸', '⛪', '🎅', '🐣', '🎃'];
 
-// Soft scrapbook gradient pairs (from/to) for album cards.
-const CARD_GRADIENTS = [
-  ['#F8E8E0', '#F3D5C8'],
-  ['#E0F0E8', '#C8E0D5'],
-  ['#E8E0F8', '#D5C8F3'],
-  ['#FFF5E0', '#F3E4C0'],
-  ['#E0EAF8', '#C8D8F3'],
-  ['#F8E0EC', '#F3C8D8'],
-  ['#E8F8E0', '#D0ECC0'],
-  ['#F8F0E0', '#EEE0C8'],
-];
-
 export default function AlbumsPage() {
-  const { albums, loading, createAlbum, deleteAlbum } = useAlbums();
+  const { albums, loading, error, createAlbum, deleteAlbum } = useAlbums();
   const { user } = useAuth();
   const router = useRouter();
 
@@ -64,57 +52,54 @@ export default function AlbumsPage() {
 
   return (
     <>
-      <AppHeader title="Álbuns" />
+      <AppHeader title="Vovo" brand subtitle="Álbuns" />
 
-      {loading ? (
-        <div className="flex justify-center pt-32">
-          <Spinner />
-        </div>
-      ) : (
-        <div className="p-4">
-          {/* Hero — all photos */}
-          <button
-            type="button"
-            onClick={() => openAlbum(null, 'Todas as fotos', '📷')}
-            className="mb-4 flex w-full items-center gap-4 rounded-xl p-5 text-left shadow-card active:scale-[0.99]"
-            style={{ background: 'linear-gradient(135deg, #D9A899, #EDD4A0)' }}
-          >
-            <span className="text-[44px]">📷</span>
-            <span className="flex-1">
-              <span className="block text-xl font-extrabold text-ink">Todas as fotos</span>
-              <span className="block text-sm font-medium text-ink/80">Ver toda a coleção da família</span>
-            </span>
-            <span className="text-3xl font-light text-ink-secondary">›</span>
-          </button>
+      <div className="mx-auto max-w-[440px] px-6">
+        {loading ? (
+          <div className="flex justify-center pt-28">
+            <Spinner />
+          </div>
+        ) : (
+          <>
+            {/* Featured: the whole collection */}
+            <button
+              type="button"
+              onClick={() => openAlbum(null, 'Todas as fotos', '📷')}
+              className="flex w-full items-baseline justify-between border-b border-ink py-5 text-left"
+            >
+              <span className="font-serif text-[26px] leading-none text-ink">Todas as fotos</span>
+              <span className="label text-ink-muted">Ver →</span>
+            </button>
 
-          {albums.length === 0 ? (
-            <div className="flex flex-col items-center px-8 pt-16 text-center">
-              <span className="mb-4 text-7xl">🏡</span>
-              <h2 className="mb-2 text-xl font-extrabold text-ink">Sem álbuns ainda</h2>
-              <p className="text-base leading-relaxed text-ink-secondary">
-                Cria o primeiro álbum para organizar as memórias da família
+            {error && (
+              <p className="mt-4 text-center text-[15px] text-ink-muted">{error}</p>
+            )}
+
+            {albums.length === 0 ? (
+              <p className="px-2 pt-10 text-center font-serif text-[19px] italic leading-snug text-ink-muted">
+                Ainda não há álbuns.
+                {isParent && ' Cria o primeiro para organizar as memórias.'}
               </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-4">
-              {albums.map((album, index) => {
-                const [from, to] = CARD_GRADIENTS[index % CARD_GRADIENTS.length];
-                return (
-                  <div key={album.id} className="relative">
+            ) : (
+              <ul>
+                {albums.map((album, i) => (
+                  <li key={album.id} className="flex items-center gap-3 border-b border-line">
                     <button
                       type="button"
                       onClick={() => openAlbum(album.id, album.name, album.emoji)}
-                      aria-label={`Abrir álbum ${album.name}, ${album.photos_count} ${album.photos_count === 1 ? 'foto' : 'fotos'}`}
-                      className="flex min-h-[180px] w-full flex-col items-center justify-center overflow-hidden rounded-xl px-4 py-8 shadow-card active:scale-[0.98]"
-                      style={{ background: `linear-gradient(135deg, ${from}, ${to})` }}
+                      className="flex flex-1 items-center gap-4 py-5 text-left"
                     >
-                      <span className="absolute right-0 top-0 h-10 w-10 rounded-bl-[24px] bg-white/45" />
-                      <span className="mb-2 text-5xl">{album.emoji}</span>
-                      <span className="text-center text-base font-bold leading-tight text-ink">
-                        {album.name}
+                      <span className="label w-6 shrink-0 text-ink-faint">
+                        {String(i + 1).padStart(2, '0')}
                       </span>
-                      <span className="mt-1 text-xs font-medium text-ink-secondary">
-                        {album.photos_count} {album.photos_count === 1 ? 'foto' : 'fotos'}
+                      <span className="text-2xl">{album.emoji}</span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate font-serif text-[22px] leading-tight text-ink">
+                          {album.name}
+                        </span>
+                        <span className="label text-ink-muted">
+                          {album.photos_count} {album.photos_count === 1 ? 'foto' : 'fotos'}
+                        </span>
                       </span>
                     </button>
                     {isParent && (
@@ -122,59 +107,51 @@ export default function AlbumsPage() {
                         type="button"
                         aria-label={`Apagar álbum ${album.name}`}
                         onClick={() => handleDelete(album)}
-                        className="absolute bottom-1.5 right-1.5 flex h-11 w-11 items-center justify-center rounded-full bg-white/80 text-base text-ink-secondary shadow-soft active:scale-95"
+                        className="label flex h-11 shrink-0 items-center pl-2 text-ink-faint active:text-danger"
                       >
-                        🗑️
+                        Apagar
                       </button>
                     )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
+                  </li>
+                ))}
+              </ul>
+            )}
 
-      {/* FAB */}
-      {isParent && (
-        <button
-          type="button"
-          onClick={() => setShowCreate(true)}
-          aria-label="Criar álbum"
-          className="fixed bottom-28 right-6 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-dark text-3xl text-white shadow-lift active:scale-95"
-        >
-          +
-        </button>
-      )}
+            {/* Create — a quiet text affordance, not a floating button */}
+            {isParent && (
+              <button
+                type="button"
+                onClick={() => setShowCreate(true)}
+                className="label mt-6 flex min-h-[44px] items-center text-ink active:text-clay"
+              >
+                + Criar álbum
+              </button>
+            )}
+          </>
+        )}
+      </div>
 
       {/* Create modal */}
       {showCreate && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 p-6"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 sm:items-center"
           onClick={() => setShowCreate(false)}
         >
           <div
-            className="w-full max-w-sm rounded-xl bg-surface p-6 shadow-lift"
+            className="w-full max-w-[440px] bg-paper p-6 pb-8 shadow-lift safe-bottom"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="mb-6 flex flex-col items-center">
-              <div className="mb-3 flex h-[72px] w-[72px] items-center justify-center rounded-full bg-surface-alt text-4xl">
-                {newEmoji}
-              </div>
-              <h3 className="text-xl font-extrabold text-ink">Novo Álbum</h3>
-              <p className="mt-1 text-sm text-ink-secondary">Escolhe um ícone e dá um nome</p>
-            </div>
+            <p className="label mb-5 text-ink-muted">Novo álbum</p>
 
-            <div className="mb-6 flex flex-wrap justify-center gap-2">
+            {/* Emoji picker */}
+            <div className="mb-5 flex flex-wrap gap-2">
               {ALBUM_EMOJIS.map((emoji) => (
                 <button
                   key={emoji}
                   type="button"
                   onClick={() => setNewEmoji(emoji)}
-                  className={`flex h-[52px] w-[52px] items-center justify-center rounded-full border-2 text-2xl ${
-                    newEmoji === emoji
-                      ? 'border-primary bg-primary/10'
-                      : 'border-transparent bg-background'
+                  className={`flex h-12 w-12 items-center justify-center rounded-full border text-2xl ${
+                    newEmoji === emoji ? 'border-ink bg-ink/[0.04]' : 'border-line'
                   }`}
                 >
                   {emoji}
@@ -185,21 +162,21 @@ export default function AlbumsPage() {
             <input
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              placeholder="Nome do álbum..."
+              placeholder="Nome do álbum…"
               maxLength={30}
               autoFocus
               aria-label="Nome do álbum"
-              className="mb-6 w-full rounded-2xl border border-line bg-background p-4 text-base text-ink outline-none placeholder:text-ink-secondary focus:border-primary focus:ring-2 focus:ring-primary/30"
+              className="mb-6 w-full border-b border-line bg-transparent pb-2 font-serif text-[22px] italic text-ink outline-none placeholder:text-ink-faint focus:border-ink"
             />
 
-            <div className="flex gap-4">
+            <div className="flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => {
                   setShowCreate(false);
                   setNewName('');
                 }}
-                className="flex-1 rounded-full bg-surface-alt py-3 font-semibold text-ink-secondary"
+                className="label px-4 py-3 text-ink-muted active:text-ink"
               >
                 Cancelar
               </button>
@@ -207,13 +184,9 @@ export default function AlbumsPage() {
                 type="button"
                 onClick={handleCreate}
                 disabled={!newName.trim() || creating}
-                className="flex flex-1 items-center justify-center rounded-full bg-primary py-3 font-bold text-white disabled:bg-ink-light disabled:text-surface"
+                className="label flex min-h-[44px] items-center rounded-full bg-ink px-6 text-paper disabled:opacity-40"
               >
-                {creating ? (
-                  <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                ) : (
-                  'Criar Álbum'
-                )}
+                {creating ? '…' : 'Criar'}
               </button>
             </div>
           </div>

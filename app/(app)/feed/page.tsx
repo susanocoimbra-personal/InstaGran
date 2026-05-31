@@ -7,114 +7,93 @@ import { useAuth } from '@/hooks/useAuth';
 import AppHeader from '@/components/AppHeader';
 import Spinner from '@/components/Spinner';
 import PhotoImage from '@/components/PhotoImage';
-import { formatTimeAgo, pickAvatarBg } from '@/lib/format';
+import { formatPlateDate } from '@/lib/format';
 import type { Photo } from '@/types/database';
 
-function PhotoCard({
+// A single plate in the diary: gallery label, framed print, italic caption,
+// quiet actions. The photograph carries all the colour; the chrome stays out.
+function Plate({
   photo,
+  plateNo,
   onOpen,
   index,
 }: {
   photo: Photo;
+  plateNo: string;
   onOpen: () => void;
   index: number;
 }) {
-  const reactionSummary = useMemo(
-    () =>
-      (photo.reactions || []).reduce((acc: Record<string, number>, r) => {
-        acc[r.emoji] = (acc[r.emoji] || 0) + 1;
-        return acc;
-      }, {}),
-    [photo.reactions],
-  );
-
-  const reactionEntries = Object.entries(reactionSummary);
+  const reactionCount = (photo.reactions || []).length;
   const commentsCount = photo.comments_count ?? 0;
-  const hasFooter = reactionEntries.length > 0 || commentsCount > 0;
 
-  // Clamp aspect ratio between 1:1 and 3:4 (portrait) so the feed stays tidy.
+  // Clamp aspect ratio between 1:1 and 4:5 (portrait) so the column stays calm.
   const ratio =
     photo.width && photo.height && photo.width > 0
-      ? Math.min(4 / 3, Math.max(1, photo.height / photo.width))
-      : 1;
+      ? Math.min(5 / 4, Math.max(1, photo.height / photo.width))
+      : 4 / 5 < 1
+        ? 1
+        : 4 / 5;
 
   return (
-    <button
-      type="button"
-      onClick={onOpen}
-      // Staggered entrance, capped at 6 so a long feed never waits on choreography.
-      className="mx-4 block animate-fade-up overflow-hidden rounded-2xl bg-surface text-left shadow-card transition active:scale-[0.99]"
-      style={{ animationDelay: `${Math.min(index, 6) * 60}ms` }}
-      aria-label={`Foto de ${photo.user?.name || 'Família'}${photo.caption ? `, ${photo.caption}` : ''}`}
+    <figure
+      className="mb-14 animate-rise-in"
+      style={{ animationDelay: `${Math.min(index, 6) * 90}ms` }}
     >
-      {/* Header */}
-      <div className="flex items-center gap-2 px-4 pb-2 pt-4">
-        <div
-          className="flex h-[42px] w-[42px] items-center justify-center rounded-full"
-          style={{ backgroundColor: pickAvatarBg(photo.user?.name) }}
-        >
-          <span className="text-[22px] leading-none">{photo.user?.avatar_emoji || '👤'}</span>
-        </div>
-        <div className="min-w-0">
-          <p className="truncate font-semibold text-ink">{photo.user?.name || 'Família'}</p>
-          <p className="text-xs text-ink-secondary">{formatTimeAgo(photo.created_at)}</p>
-        </div>
+      {/* Gallery label: plate number — author · date */}
+      <div className="mb-3 flex items-baseline justify-between gap-2">
+        <span className="label text-ink-muted">
+          {plateNo} — {photo.user?.name || 'Família'}
+        </span>
+        <span className="label text-ink-muted">{formatPlateDate(photo.created_at)}</span>
       </div>
 
-      {/* Image */}
-      <div
-        className="relative mx-2 overflow-hidden rounded-xl"
+      {/* The print */}
+      <button
+        type="button"
+        onClick={onOpen}
+        aria-label={`Ver foto de ${photo.user?.name || 'Família'}${photo.caption ? `, ${photo.caption}` : ''}`}
+        className="block w-full overflow-hidden bg-paper-dim shadow-print transition active:scale-[0.995]"
         style={{ aspectRatio: `1 / ${ratio}` }}
       >
         <PhotoImage
           path={photo.image_url}
-          alt={photo.caption || 'Foto de família'}
-          width={800}
-          className="absolute inset-0 h-full w-full"
+          alt={photo.caption || 'Fotografia de família'}
+          width={900}
+          className="h-full w-full"
         />
-      </div>
+      </button>
 
-      {/* Caption */}
-      {photo.caption ? (
-        <p className="px-4 pt-2.5 text-base leading-relaxed text-ink">{photo.caption}</p>
-      ) : null}
-
-      {/* Footer */}
-      {hasFooter && (
-        <div className="flex items-center justify-between gap-2 px-4 pb-4 pt-2">
-          <div className="flex flex-wrap gap-1.5">
-            {reactionEntries.map(([emoji, count]) => (
-              <span
-                key={emoji}
-                className="flex items-center gap-1 rounded-full border border-line bg-surface-alt px-2.5 py-1"
-              >
-                <span className="text-lg leading-none">{emoji}</span>
-                <span className="text-sm font-medium text-ink-secondary">{count}</span>
-              </span>
-            ))}
-          </div>
-          {commentsCount > 0 && (
-            <span className="text-sm font-medium text-ink-secondary">
-              💬 {commentsCount} {commentsCount === 1 ? 'comentário' : 'comentários'}
-            </span>
-          )}
-        </div>
+      {/* Caption as exhibition text */}
+      {photo.caption && (
+        <figcaption className="mx-auto mt-4 max-w-[34ch] text-center font-serif text-[20px] italic leading-snug text-ink">
+          “{photo.caption}”
+        </figcaption>
       )}
-    </button>
+
+      {/* Quiet actions */}
+      <div className="mt-3 flex items-center justify-center gap-5 text-ink-muted">
+        <span className="label flex items-center gap-1.5">
+          <span aria-hidden>♥</span> {reactionCount}
+        </span>
+        <span className="h-3 w-px bg-line" />
+        <button type="button" onClick={onOpen} className="label">
+          {commentsCount === 1 ? '1 comentário' : `${commentsCount} comentários`}
+        </button>
+      </div>
+    </figure>
   );
 }
 
 function EmptyState({ isParent }: { isParent: boolean }) {
   return (
-    <div className="flex flex-col items-center px-8 pt-32 text-center">
-      <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-surface-alt shadow-soft">
-        <span className="animate-float text-[44px]">📷</span>
-      </div>
-      <h2 className="mb-2 text-xl font-bold text-ink">Ainda não há fotos!</h2>
-      <p className="max-w-xs text-base leading-relaxed text-ink-secondary">
+    <div className="flex flex-col items-center px-8 pt-28 text-center">
+      <p className="font-serif text-[26px] italic leading-tight text-ink">
+        O diário ainda está em branco.
+      </p>
+      <p className="mt-3 max-w-xs text-[15px] leading-relaxed text-ink-muted">
         {isParent
-          ? 'Carrega no botão da câmara para partilhar um momento'
-          : 'As fotos vão aparecer aqui quando forem partilhadas'}
+          ? 'Adiciona a primeira fotografia para começar a história.'
+          : 'As fotografias vão aparecer aqui assim que forem partilhadas.'}
       </p>
     </div>
   );
@@ -125,46 +104,56 @@ export default function FeedPage() {
   const { user } = useAuth();
   const router = useRouter();
 
+  // Newest photo gets the highest plate number, like a growing diary.
+  const total = photos.length;
+  const plate = useMemo(
+    () => (i: number) => String(total - i).padStart(2, '0'),
+    [total],
+  );
+
   return (
     <>
-      <AppHeader title="Vovo" brand />
+      <AppHeader title="Vovo" brand subtitle="O diário da família" />
 
-      <div className="flex items-center justify-end px-4 pt-3">
-        <button
-          type="button"
-          onClick={refresh}
-          aria-label="Atualizar fotos"
-          className="flex min-h-[44px] items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-ink-secondary active:bg-surface-alt"
-        >
-          <span className={refreshing ? 'inline-block animate-spin' : 'inline-block'}>↻</span>
-          Atualizar
-        </button>
+      <div className="mx-auto max-w-[440px] px-6">
+        <div className="flex items-center justify-end pt-4">
+          <button
+            type="button"
+            onClick={refresh}
+            aria-label="Atualizar"
+            className="label flex min-h-[44px] items-center gap-2 text-ink-muted active:text-ink"
+          >
+            <span className={refreshing ? 'inline-block animate-spin' : 'inline-block'}>↻</span>
+            Atualizar
+          </button>
+        </div>
+
+        {error && !loading && (
+          <p className="mb-4 border border-danger/30 bg-danger/5 px-4 py-3 text-center text-[15px] text-ink">
+            {error}
+          </p>
+        )}
+
+        {loading ? (
+          <div className="flex justify-center pt-28">
+            <Spinner />
+          </div>
+        ) : photos.length === 0 && !error ? (
+          <EmptyState isParent={user?.role === 'parent'} />
+        ) : (
+          <div className="pt-6">
+            {photos.map((photo, i) => (
+              <Plate
+                key={photo.id}
+                photo={photo}
+                plateNo={plate(i)}
+                index={i}
+                onOpen={() => router.push(`/photo/${photo.id}`)}
+              />
+            ))}
+          </div>
+        )}
       </div>
-
-      {error && !loading && (
-        <div className="mx-4 mb-2 rounded-2xl border border-danger/30 bg-danger/10 px-4 py-3 text-center text-base text-ink">
-          {error}
-        </div>
-      )}
-
-      {loading ? (
-        <div className="flex justify-center pt-32">
-          <Spinner />
-        </div>
-      ) : photos.length === 0 && !error ? (
-        <EmptyState isParent={user?.role === 'parent'} />
-      ) : (
-        <div className="flex flex-col gap-6 pt-4">
-          {photos.map((photo, i) => (
-            <PhotoCard
-              key={photo.id}
-              photo={photo}
-              index={i}
-              onOpen={() => router.push(`/photo/${photo.id}`)}
-            />
-          ))}
-        </div>
-      )}
     </>
   );
 }

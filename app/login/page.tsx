@@ -68,39 +68,31 @@ export default function LoginPage() {
   };
 
   return (
-    <main
-      className="flex min-h-screen flex-col items-center justify-center px-8"
-      style={{
-        background: 'linear-gradient(160deg, #FAF7F4 0%, #F3EDE7 50%, #FAF7F4 100%)',
-      }}
-    >
-      <div className="flex w-full max-w-sm animate-fade-up flex-col items-center">
-        {/* Icon with glow */}
-        <div className="relative mb-6 flex h-28 w-28 items-center justify-center">
-          <span className="absolute inset-0 rounded-full bg-primary/10" />
-          <span className="text-6xl">👶</span>
-        </div>
+    <main className="flex min-h-screen flex-col items-center justify-center bg-paper px-8">
+      <div className="flex w-full max-w-sm animate-rise-in flex-col items-center">
+        {/* Masthead */}
+        <p className="label mb-5 text-ink-muted">O diário da família</p>
+        <h1 className="font-serif text-[64px] leading-none tracking-wordmark text-ink">Vovo</h1>
 
-        <h1 className="mb-1 text-5xl font-extrabold tracking-wide text-primary">Vovo</h1>
-        <p className="mb-2 text-center text-base text-ink-secondary">
-          Fotos de família, partilhadas com amor
-        </p>
-        <p className="mb-8 text-lg opacity-60">❤️</p>
+        {/* Hairline rule with the prompt, like a title page */}
+        <div className="mb-10 mt-7 flex w-full items-center gap-4">
+          <span className="h-px flex-1 bg-line" />
+          <span className="label text-ink-muted">Introduz o teu PIN</span>
+          <span className="h-px flex-1 bg-line" />
+        </div>
 
         {/* PIN dots */}
         <button
           type="button"
           onClick={() => inputRef.current?.focus()}
-          className={`mb-2 flex gap-5 p-4 ${shake ? 'animate-shake' : ''}`}
+          className={`mb-2 flex gap-5 p-3 ${shake ? 'animate-shake' : ''}`}
           aria-label={`Campo PIN. ${pin.length} de ${PIN_LENGTH} dígitos introduzidos`}
         >
           {Array.from({ length: PIN_LENGTH }).map((_, i) => (
             <span
               key={i}
-              className={`h-[18px] w-[18px] rounded-full border-[2.5px] transition-all duration-150 ${
-                pin.length > i
-                  ? 'scale-100 border-primary bg-primary'
-                  : 'scale-90 border-primary/35 bg-transparent'
+              className={`h-2.5 w-2.5 rounded-full transition-all duration-200 ${
+                pin.length > i ? 'scale-100 bg-ink' : 'scale-90 bg-line'
               }`}
             />
           ))}
@@ -122,7 +114,7 @@ export default function LoginPage() {
         {/* Error / placeholder */}
         <div className="flex h-8 items-center">
           {error ? (
-            <p className="text-sm text-danger" role="alert">
+            <p className="text-[15px] italic text-danger" role="alert" style={{ fontFamily: 'var(--font-serif)' }}>
               {error}
             </p>
           ) : null}
@@ -133,16 +125,16 @@ export default function LoginPage() {
           type="button"
           onClick={() => submit()}
           disabled={loading}
-          className="mb-6 flex min-h-[56px] min-w-[200px] items-center justify-center rounded-full bg-gradient-to-br from-primary-light via-primary to-primary-dark px-12 py-3.5 text-lg font-bold text-white shadow-lift transition active:scale-[0.98] disabled:opacity-60"
+          className="label mb-8 mt-2 flex min-h-[52px] min-w-[180px] items-center justify-center rounded-full bg-ink px-10 text-paper transition active:scale-[0.98] disabled:opacity-40"
         >
           {loading ? (
-            <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-paper/40 border-t-paper" />
           ) : (
             'Entrar'
           )}
         </button>
 
-        <p className="text-xs tracking-wide text-ink-light">Pede o teu PIN ao Diogo</p>
+        <p className="label text-ink-faint">Pede o teu PIN ao Diogo</p>
       </div>
     </main>
   );

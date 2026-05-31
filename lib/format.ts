@@ -23,21 +23,9 @@ export function formatLongDate(dateStr: string): string {
   });
 }
 
-// Soft pastel palette for avatar circle backgrounds.
-const AVATAR_BG = ['#F3E0DB', '#DCE8DC', '#EDE0D0', '#DDE4EE', '#F0E4D6', '#E6DDF0'];
-
-export function pickAvatarBg(name: string | undefined): string {
-  const seed = (name || '').split('').reduce((s, c) => s + c.charCodeAt(0), 0);
-  return AVATAR_BG[seed % AVATAR_BG.length];
-}
-
-// Subtle bubble colors for comment authors.
-const BUBBLE_COLORS = ['#F3EDE7', '#E8F0E7', '#EDE7F3', '#FFF3E0', '#E7EFF3', '#F3E7EC'];
-
-export function getBubbleColor(userId: string): string {
-  let hash = 0;
-  for (let i = 0; i < userId.length; i++) {
-    hash = userId.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return BUBBLE_COLORS[Math.abs(hash) % BUBBLE_COLORS.length];
+// Short gallery-label date, e.g. "14 MAR". Uppercased by the .label class.
+export function formatPlateDate(dateStr: string): string {
+  return new Date(dateStr)
+    .toLocaleDateString('pt-PT', { day: 'numeric', month: 'short' })
+    .replace('.', '');
 }

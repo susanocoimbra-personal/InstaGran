@@ -30,7 +30,7 @@ export default function PhotoImage({ path, alt, className = '', fit = 'cover', w
   if (failed) {
     return (
       <div
-        className={`flex flex-col items-center justify-center gap-1 bg-surface-alt text-center text-ink-secondary ${className}`}
+        className={`flex flex-col items-center justify-center gap-1 bg-paper-dim text-center text-ink-muted ${className}`}
       >
         <span className="text-2xl" aria-hidden>
           🖼️
@@ -54,7 +54,7 @@ export default function PhotoImage({ path, alt, className = '', fit = 'cover', w
           setFailed(true);
         }
       }}
-      className={`${fit === 'cover' ? 'object-cover' : 'object-contain'} bg-surface-alt transition-opacity duration-300 ${
+      className={`${fit === 'cover' ? 'object-cover' : 'object-contain'} bg-paper-dim transition-opacity duration-500 ${
         loaded ? 'opacity-100' : 'opacity-0'
       } ${className}`}
     />

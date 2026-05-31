@@ -46,57 +46,59 @@ export default function AlbumPhotosPage() {
 
   return (
     <>
-      <AppHeader title={`${albumEmoji} ${albumName}`} back />
+      {/* Album masthead: emoji + serif title + count */}
+      <header className="border-b border-line bg-paper px-6 pb-5 pt-6 safe-top">
+        <button
+          type="button"
+          onClick={() => router.back()}
+          aria-label="Voltar"
+          className="label -ml-1 mb-3 flex min-h-[44px] items-center text-ink-muted active:text-ink"
+        >
+          ‹ Álbuns
+        </button>
+        <div className="flex items-baseline gap-3">
+          <span className="text-3xl">{albumEmoji}</span>
+          <h1 className="font-serif text-[34px] leading-none tracking-wordmark text-ink">{albumName}</h1>
+        </div>
+        {!loading && !error && (
+          <p className="label mt-2 text-ink-muted">
+            {photos.length} {photos.length === 1 ? 'fotografia' : 'fotografias'}
+          </p>
+        )}
+      </header>
 
-      {loading ? (
-        <div className="flex justify-center pt-32">
-          <Spinner />
-        </div>
-      ) : error ? (
-        <div className="mx-4 mt-4 rounded-2xl border border-danger/30 bg-danger/10 px-4 py-3 text-center text-base text-ink">
-          {error}
-        </div>
-      ) : photos.length === 0 ? (
-        <div className="flex flex-col items-center px-8 pt-24 text-center">
-          <div
-            className="mb-6 flex h-28 w-28 items-center justify-center rounded-full text-5xl"
-            style={{ background: 'linear-gradient(135deg, #D9A899, #EDD4A0)' }}
-          >
-            {albumEmoji}
+      <div className="mx-auto max-w-[440px] px-6">
+        {loading ? (
+          <div className="flex justify-center pt-28">
+            <Spinner />
           </div>
-          <h2 className="mb-1 text-xl font-extrabold text-ink">Ainda sem fotos</h2>
-          <p className="text-base text-ink-secondary">Partilha o primeiro momento neste álbum</p>
-        </div>
-      ) : (
-        <div className="p-4">
-          <div className="mb-4 flex items-center gap-2">
-            <span className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-primary text-sm font-extrabold text-white">
-              {photos.length}
-            </span>
-            <span className="text-lg font-bold text-ink">
-              {photos.length === 1 ? 'foto' : 'fotos'}
-            </span>
-          </div>
-
-          <div className="grid grid-cols-3 gap-2">
+        ) : error ? (
+          <p className="mt-6 text-center text-[15px] text-ink-muted">{error}</p>
+        ) : photos.length === 0 ? (
+          <p className="px-2 pt-16 text-center font-serif text-[20px] italic leading-snug text-ink-muted">
+            Ainda sem fotografias neste álbum.
+          </p>
+        ) : (
+          // A tighter editorial grid: thin gutters, prints flush like a contact sheet.
+          <div className="grid grid-cols-2 gap-3 pt-6">
             {photos.map((photo) => (
               <button
                 key={photo.id}
                 type="button"
                 onClick={() => router.push(`/photo/${photo.id}`)}
-                className="relative aspect-square overflow-hidden rounded-xl shadow-soft active:scale-95"
+                className="relative aspect-[4/5] overflow-hidden bg-paper-dim shadow-print transition active:scale-[0.98]"
               >
                 <PhotoImage
                   path={photo.image_url}
-                  alt={photo.caption || 'Foto'}
-                  width={400}
+                  alt={photo.caption || 'Fotografia'}
+                  width={500}
                   className="absolute inset-0 h-full w-full"
                 />
               </button>
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </>
   );
 }

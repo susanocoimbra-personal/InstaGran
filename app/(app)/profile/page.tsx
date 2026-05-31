@@ -72,118 +72,79 @@ export default function ProfilePage() {
 
   return (
     <>
-      <AppHeader title="Perfil" />
+      <AppHeader title="Vovo" brand subtitle="Perfil" />
 
-      {/* Header gradient */}
-      <div className="relative">
-        <div
-          className="absolute inset-x-0 top-0 h-56"
-          style={{
-            background: 'linear-gradient(180deg, #D9A899 0%, #EDD4A0 55%, #FAF7F4 100%)',
-          }}
-        />
-
-        <div className="relative flex flex-col items-center pt-12">
-          <div
-            className="flex h-[118px] w-[118px] items-center justify-center rounded-full shadow-card"
-            style={{ background: 'linear-gradient(135deg, #D9A899, #EDD4A0)' }}
-          >
-            <div className="flex h-[110px] w-[110px] items-center justify-center rounded-full bg-surface">
-              <span className="text-6xl">{user.avatar_emoji}</span>
-            </div>
+      <div className="mx-auto max-w-[440px] px-6">
+        {/* Identity */}
+        <div className="flex flex-col items-center border-b border-line py-10">
+          <div className="flex h-24 w-24 items-center justify-center rounded-full border border-line bg-paper-dim">
+            <span className="text-5xl">{user.avatar_emoji}</span>
           </div>
-
-          <h2 className="mt-4 text-2xl font-bold text-ink">{user.name}</h2>
-          <span className="mt-2 rounded-full border border-line bg-surface-alt px-4 py-1.5 text-sm font-medium text-ink-secondary">
-            {roleLabel(user.role)}
-          </span>
+          <h2 className="mt-5 font-serif text-[32px] leading-none text-ink">{user.name}</h2>
+          <span className="label mt-3 text-ink-muted">{roleLabel(user.role)}</span>
           <button
             type="button"
             onClick={openEdit}
-            className="mt-3 min-h-[44px] rounded-full px-5 py-2 text-sm font-semibold text-primary-dark active:bg-surface-alt"
+            className="label mt-4 flex min-h-[44px] items-center text-ink active:text-clay"
           >
-            ✎ Editar perfil
+            Editar perfil
           </button>
         </div>
-      </div>
 
-      {/* Family */}
-      <div className="px-6 pt-6">
-        <h3 className="mb-4 text-lg font-semibold text-ink">A nossa família</h3>
-        <div className="flex flex-wrap justify-around gap-y-4">
-          {family.map((member) => (
-            <div key={member.id} className="flex w-16 flex-col items-center">
-              <div
-                className="flex h-[58px] w-[58px] items-center justify-center rounded-full"
-                style={{ background: 'linear-gradient(135deg, #D9A899, #EDD4A0)' }}
-              >
-                <div className="flex h-[52px] w-[52px] items-center justify-center rounded-full bg-surface">
-                  <span className="text-2xl">{member.avatar_emoji}</span>
-                </div>
-              </div>
-              <span className="mt-1 truncate text-center text-xs font-medium text-ink-secondary">
-                {member.name}
-              </span>
-            </div>
-          ))}
+        {/* Family roll */}
+        <div className="border-b border-line py-7">
+          <p className="label mb-4 text-ink-muted">A nossa família</p>
+          <ul>
+            {family.map((member) => (
+              <li key={member.id} className="flex items-center gap-3 py-2.5">
+                <span className="text-2xl">{member.avatar_emoji}</span>
+                <span className="flex-1 font-serif text-[19px] text-ink">{member.name}</span>
+                <span className="label text-ink-faint">{roleLabel(member.role)}</span>
+              </li>
+            ))}
+          </ul>
         </div>
-      </div>
 
-      {/* About */}
-      <div className="mx-6 mt-6 rounded-2xl border border-line bg-surface p-5 shadow-soft">
-        <div className="mb-3 flex items-center gap-2">
-          <span className="text-xl">🏠</span>
-          <h3 className="text-lg font-semibold text-ink">Sobre o Vovo</h3>
-        </div>
-        <p className="text-base leading-relaxed text-ink-secondary">
-          Um espaço privado para a nossa família partilhar os momentos preciosos da nossa pequenina
-          a crescer.
-        </p>
-        <div className="my-4 h-px bg-line" />
-        <div className="flex items-start gap-2">
-          <span className="text-xl">🔒</span>
-          <p className="flex-1 text-sm leading-relaxed text-ink-secondary">
-            Só a nossa família pode ver o que é partilhado aqui.
+        {/* About — set as an editorial colophon */}
+        <div className="py-8">
+          <p className="font-serif text-[20px] italic leading-snug text-ink">
+            Um diário privado para a família guardar os momentos da nossa pequenina a crescer.
           </p>
+          <p className="label mt-4 text-ink-muted">Só a nossa família vê o que é partilhado aqui.</p>
         </div>
-      </div>
 
-      {/* Sign out */}
-      <div className="flex justify-center pt-4">
-        <button
-          type="button"
-          onClick={handleSignOut}
-          className="min-h-[44px] px-6 py-2 text-sm font-medium text-ink-secondary active:text-ink"
-        >
-          Terminar sessão
-        </button>
+        {/* Sign out */}
+        <div className="border-t border-line py-6">
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="label flex min-h-[44px] items-center text-ink-muted active:text-danger"
+          >
+            Terminar sessão
+          </button>
+        </div>
       </div>
 
       {/* Edit profile modal */}
       {editing && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 p-6"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 sm:items-center"
           onClick={() => setEditing(false)}
         >
           <div
-            className="w-full max-w-sm rounded-xl bg-surface p-6 shadow-lift"
+            className="w-full max-w-[440px] bg-paper p-6 pb-8 shadow-lift safe-bottom"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="mb-5 flex flex-col items-center">
-              <div className="mb-3 flex h-[72px] w-[72px] items-center justify-center rounded-full bg-surface-alt text-4xl">
-                {draftEmoji}
-              </div>
-              <h3 className="text-xl font-extrabold text-ink">Editar perfil</h3>
-            </div>
+            <p className="label mb-5 text-ink-muted">Editar perfil</p>
 
-            <div className="mb-5 flex flex-wrap justify-center gap-2">
+            <div className="mb-5 flex flex-wrap gap-2">
               {PROFILE_EMOJIS.map((emoji) => (
                 <button
                   key={emoji}
                   type="button"
                   onClick={() => setDraftEmoji(emoji)}
-                  className={`flex h-12 w-12 items-center justify-center rounded-full border-2 text-2xl ${
-                    draftEmoji === emoji ? 'border-primary bg-primary/10' : 'border-transparent bg-background'
+                  className={`flex h-12 w-12 items-center justify-center rounded-full border text-2xl ${
+                    draftEmoji === emoji ? 'border-ink bg-ink/[0.04]' : 'border-line'
                   }`}
                 >
                   {emoji}
@@ -194,18 +155,18 @@ export default function ProfilePage() {
             <input
               value={draftName}
               onChange={(e) => setDraftName(e.target.value)}
-              placeholder="O teu nome..."
+              placeholder="O teu nome…"
               maxLength={30}
               autoFocus
               aria-label="O teu nome"
-              className="mb-6 w-full rounded-2xl border border-line bg-background p-4 text-base text-ink outline-none placeholder:text-ink-secondary focus:border-primary focus:ring-2 focus:ring-primary/30"
+              className="mb-6 w-full border-b border-line bg-transparent pb-2 font-serif text-[22px] italic text-ink outline-none placeholder:text-ink-faint focus:border-ink"
             />
 
-            <div className="flex gap-4">
+            <div className="flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setEditing(false)}
-                className="flex-1 rounded-full bg-surface-alt py-3 font-semibold text-ink-secondary"
+                className="label px-4 py-3 text-ink-muted active:text-ink"
               >
                 Cancelar
               </button>
@@ -213,13 +174,9 @@ export default function ProfilePage() {
                 type="button"
                 onClick={saveProfile}
                 disabled={!draftName.trim() || saving}
-                className="flex flex-1 items-center justify-center rounded-full bg-primary py-3 font-bold text-white disabled:bg-ink-light disabled:text-surface"
+                className="label flex min-h-[44px] items-center rounded-full bg-ink px-6 text-paper disabled:opacity-40"
               >
-                {saving ? (
-                  <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                ) : (
-                  'Guardar'
-                )}
+                {saving ? '…' : 'Guardar'}
               </button>
             </div>
           </div>

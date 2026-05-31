@@ -1,84 +1,61 @@
 import type { Config } from 'tailwindcss';
 
-// Vovo Design System — Warm, Modern, Premium
-// A family photo-sharing experience that feels like a sunlit living room.
+// Vovo — "Editorial" design system.
+// A printed family photo-book: white gallery walls, near-black ink, one warm
+// accent used sparingly. The photographs are the colour; the UI is quiet.
 const config: Config = {
-  content: [
-    './app/**/*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
-  ],
+  content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
-        // Primary — Soft Terracotta Rose
-        primary: {
-          DEFAULT: '#C4816B',
-          light: '#D9A899',
-          dark: '#A66853',
-        },
-        secondary: '#8FA68E',
-        // Warm off-white backgrounds
-        background: '#FAF7F4',
-        surface: '#FFFFFF',
-        'surface-alt': '#F3EDE7',
-        // Warm charcoal text
+        // Surfaces — gallery white + a faintly warm paper for insets.
+        paper: '#FFFFFF',
+        'paper-dim': '#F6F4F1', // image placeholders, subtle insets
+        // Ink ramp — warm near-black through to soft grey. Never pure #000.
         ink: {
-          DEFAULT: '#3B3235',
-          secondary: '#7A6E72',
-          light: '#B5AAAE',
+          DEFAULT: '#191614', // primary text / wordmark
+          soft: '#4A443F', // body
+          muted: '#8A827B', // metadata, labels (passes AA on white at 14px+)
+          faint: '#B8B0A8', // hairlines-as-text, disabled
         },
-        line: '#EDE6E0',
-        danger: '#D4605A',
-        success: '#6BA588',
-        accent: {
-          DEFAULT: '#D4A95A',
-          light: '#EDD4A0',
+        line: '#E7E2DB', // rules and dividers
+        // One accent — a deep terracotta-clay, used only for the active state
+        // and primary action. Rare by design.
+        clay: {
+          DEFAULT: '#9C4A2F',
+          soft: '#C2785C',
         },
-      },
-      borderRadius: {
-        xl: '24px',
-      },
-      boxShadow: {
-        soft: '0 1px 3px rgba(59,50,53,0.06)',
-        card: '0 4px 12px rgba(59,50,53,0.08)',
-        lift: '0 8px 24px rgba(59,50,53,0.12)',
+        danger: '#A23B2D',
       },
       fontFamily: {
-        sans: ['var(--font-sans)', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+        serif: ['var(--font-serif)', 'Georgia', 'Cambria', 'Times New Roman', 'serif'],
+        sans: ['var(--font-sans)', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
+      },
+      letterSpacing: {
+        label: '0.18em', // exhibition-label caps
+        wordmark: '-0.02em',
+      },
+      boxShadow: {
+        // Photographs sit like prints on a wall: a tight contact shadow plus a
+        // soft cast shadow. Nothing else gets elevation.
+        print: '0 1px 1px rgba(25,22,20,0.04), 0 18px 32px -16px rgba(25,22,20,0.22)',
+        lift: '0 12px 40px -12px rgba(25,22,20,0.28)',
       },
       keyframes: {
-        'fade-up': {
-          '0%': { opacity: '0', transform: 'translateY(12px)' },
+        'rise-in': {
+          '0%': { opacity: '0', transform: 'translateY(18px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
         shake: {
           '0%, 100%': { transform: 'translateX(0)' },
-          '25%': { transform: 'translateX(-8px)' },
-          '75%': { transform: 'translateX(8px)' },
-        },
-        'pulse-soft': {
-          '0%, 100%': { opacity: '1' },
-          '50%': { opacity: '0.55' },
-        },
-        // Reaction tap: a quick, warm pop. No bounce/elastic — confident ease-out.
-        pop: {
-          '0%': { transform: 'scale(1)' },
-          '40%': { transform: 'scale(1.28)' },
-          '100%': { transform: 'scale(1)' },
-        },
-        // Empty-state icon: gentle breathing float, calm not busy.
-        float: {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-6px)' },
+          '25%': { transform: 'translateX(-7px)' },
+          '75%': { transform: 'translateX(7px)' },
         },
       },
       animation: {
-        // Card entrance — exponential ease-out, settles confidently.
-        'fade-up': 'fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both',
+        // Confident exponential ease-out, no bounce.
+        'rise-in': 'rise-in 0.7s cubic-bezier(0.16,1,0.3,1) both',
         shake: 'shake 0.4s ease-in-out',
-        'pulse-soft': 'pulse-soft 2.4s ease-in-out infinite',
-        pop: 'pop 0.32s cubic-bezier(0.16, 1, 0.3, 1)',
-        float: 'float 3.5s ease-in-out infinite',
       },
     },
   },

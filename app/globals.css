@@ -2,21 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --font-sans: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
-}
-
 html,
 body {
   height: 100%;
 }
 
 body {
-  background-color: #faf7f4;
-  color: #3b3235;
+  background-color: #ffffff;
+  color: #191614;
+  font-family: var(--font-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overscroll-behavior-y: none;
+}
+
+/* Exhibition-label utility: tiny letter-spaced sans caps used for plate
+   numbers, dates, and section labels throughout the editorial layout. */
+.label {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.6875rem; /* 11px */
+  font-weight: 500;
 }
 
 /* Respect iOS safe areas (notch / home indicator) for the installed PWA. */
@@ -27,7 +34,6 @@ body {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* Hide scrollbars on horizontal chip rows while keeping scroll. */
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -36,7 +42,6 @@ body {
   display: none;
 }
 
-/* Prevent the iOS tap highlight from flashing on buttons/cards. */
 button,
 a {
   -webkit-tap-highlight-color: transparent;

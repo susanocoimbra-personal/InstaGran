@@ -137,11 +137,10 @@ export default function UploadPage() {
   if (done) {
     return (
       <>
-        <AppHeader title="Nova Foto" />
+        <AppHeader title="Adicionar" back />
         <div className="flex min-h-[60vh] flex-col items-center justify-center px-8 text-center">
-          <span className="mb-4 text-7xl">🎉</span>
-          <h2 className="mb-1 text-2xl font-extrabold text-ink">Partilhado!</h2>
-          <p className="text-base text-ink-secondary">A tua família já pode ver.</p>
+          <p className="font-serif text-[28px] italic leading-tight text-ink">Partilhado.</p>
+          <p className="mt-3 text-[15px] text-ink-muted">A tua família já pode ver.</p>
         </div>
       </>
     );
@@ -149,7 +148,7 @@ export default function UploadPage() {
 
   return (
     <>
-      <AppHeader title="Nova Foto" />
+      <AppHeader title="Adicionar" back />
 
       {/* Hidden native inputs */}
       <input
@@ -169,15 +168,15 @@ export default function UploadPage() {
         onChange={(e) => onFilesPicked(e.target.files)}
       />
 
-      <div className="p-4">
+      <div className="mx-auto max-w-[440px] px-6 pt-4">
         {notice && (
-          <div className="mb-4 flex items-start justify-between gap-3 rounded-2xl border border-accent/40 bg-accent-light/40 px-4 py-3 text-base text-ink">
+          <div className="mb-5 flex items-start justify-between gap-3 border border-line bg-paper-dim px-4 py-3 text-[15px] text-ink">
             <span>{notice}</span>
             <button
               type="button"
               onClick={() => setNotice(null)}
               aria-label="Fechar aviso"
-              className="shrink-0 text-ink-secondary"
+              className="shrink-0 text-ink-muted"
             >
               ✕
             </button>
@@ -185,66 +184,53 @@ export default function UploadPage() {
         )}
 
         {images.length === 0 ? (
-          <div className="flex min-h-[60vh] flex-col items-center justify-center">
-            <span className="mb-4 text-7xl">📸</span>
-            <h2 className="mb-1 text-2xl font-extrabold text-ink">Partilha um momento</h2>
-            <p className="mb-8 text-base text-ink-secondary">Escolhe como queres adicionar fotos</p>
+          <div className="flex min-h-[58vh] flex-col items-center justify-center text-center">
+            <p className="font-serif text-[26px] italic leading-tight text-ink">
+              Que momento queres guardar?
+            </p>
 
-            <div className="flex w-full flex-col gap-4">
-              {/* Camera gradient capped at #CB9A87 (lighter than brand primary) so
-                  ink text clears WCAG AA 4.5:1 across the button for the 14px hint. */}
+            <div className="mt-10 flex w-full flex-col gap-3">
               <button
                 type="button"
                 onClick={() => cameraRef.current?.click()}
-                className="flex flex-col items-center gap-1 rounded-xl bg-gradient-to-br from-primary-light to-[#CB9A87] px-8 py-6 text-ink shadow-card active:scale-[0.99]"
+                className="flex items-center justify-between border border-ink px-6 py-5 text-left transition active:bg-paper-dim"
               >
-                <span className="text-4xl">📷</span>
-                <span className="text-xl font-bold">Câmara</span>
-                <span className="text-sm font-medium">Tira uma foto agora</span>
+                <span className="font-serif text-xl text-ink">Tirar uma foto</span>
+                <span className="label text-ink-muted">Câmara →</span>
               </button>
               <button
                 type="button"
                 onClick={() => galleryRef.current?.click()}
-                className="flex flex-col items-center gap-1 rounded-xl bg-gradient-to-br from-accent-light to-accent px-8 py-6 text-ink shadow-card active:scale-[0.99]"
+                className="flex items-center justify-between border border-line px-6 py-5 text-left transition active:bg-paper-dim"
               >
-                <span className="text-4xl">🖼️</span>
-                <span className="text-xl font-bold">Galeria</span>
-                <span className="text-sm font-medium">Até 20 fotos de uma vez</span>
+                <span className="font-serif text-xl text-ink">Escolher da galeria</span>
+                <span className="label text-ink-muted">Até 20 →</span>
               </button>
             </div>
           </div>
         ) : (
           <>
-            {/* Count */}
-            <div className="mb-4 flex items-center justify-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-base font-extrabold text-white">
-                {images.length}
-              </span>
-              <span className="text-lg font-bold text-ink">
-                {images.length === 1 ? 'foto selecionada' : 'fotos selecionadas'}
-              </span>
-            </div>
+            <p className="label mb-4 text-ink-muted">
+              {images.length} {images.length === 1 ? 'fotografia' : 'fotografias'}
+            </p>
 
             {/* Preview grid */}
-            <div className="mb-4 grid grid-cols-3 gap-2">
+            <div className="mb-6 grid grid-cols-3 gap-2">
               {images.map((img, index) => (
                 // Blob URL is unique + stable per picked image, so it survives
                 // mid-list removals correctly (index would not).
-                <div key={img.url} className="relative aspect-square overflow-hidden rounded-xl shadow-soft">
+                <div key={img.url} className="relative aspect-square overflow-hidden bg-paper-dim shadow-print">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={img.url}
                     alt={`Foto selecionada ${index + 1}`}
                     className="h-full w-full object-cover"
                   />
-                  <span className="absolute bottom-1.5 left-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-black/55 text-[11px] font-extrabold text-white">
-                    {index + 1}
-                  </span>
                   <button
                     type="button"
                     onClick={() => removeImage(index)}
                     aria-label={`Remover foto ${index + 1}`}
-                    className="absolute right-0 top-0 flex h-11 w-11 items-center justify-center rounded-bl-xl rounded-tr-xl bg-danger/90 text-sm font-extrabold text-white shadow-soft active:scale-95"
+                    className="absolute right-0 top-0 flex h-11 w-11 items-center justify-center bg-paper/85 text-base text-ink backdrop-blur active:scale-95"
                   >
                     ✕
                   </button>
@@ -254,25 +240,23 @@ export default function UploadPage() {
               <button
                 type="button"
                 onClick={() => galleryRef.current?.click()}
-                className="flex aspect-square animate-pulse-soft flex-col items-center justify-center gap-0.5 rounded-xl border-[2.5px] border-dashed border-primary-light bg-surface-alt"
+                className="flex aspect-square items-center justify-center border border-dashed border-line text-2xl font-light text-ink-muted active:bg-paper-dim"
+                aria-label="Adicionar mais fotos"
               >
-                <span className="text-3xl font-light leading-none text-primary">+</span>
-                <span className="text-xs font-bold text-primary">Mais</span>
+                +
               </button>
             </div>
 
             {/* Album selector */}
             {albums.length > 0 && (
-              <div className="mb-4">
-                <p className="mb-2 font-bold text-ink">Álbum</p>
+              <div className="mb-6">
+                <p className="label mb-2 text-ink-muted">Álbum</p>
                 <div className="no-scrollbar flex gap-2 overflow-x-auto py-1">
                   <button
                     type="button"
                     onClick={() => setSelectedAlbum(null)}
-                    className={`whitespace-nowrap rounded-full border px-4 py-2 text-base font-semibold shadow-soft transition ${
-                      !selectedAlbum
-                        ? 'border-primary bg-primary text-white'
-                        : 'border-line bg-surface text-ink'
+                    className={`label whitespace-nowrap rounded-full border px-4 py-2.5 transition ${
+                      !selectedAlbum ? 'border-ink bg-ink text-paper' : 'border-line text-ink-muted'
                     }`}
                   >
                     Nenhum
@@ -282,13 +266,13 @@ export default function UploadPage() {
                       key={album.id}
                       type="button"
                       onClick={() => setSelectedAlbum(album.id)}
-                      className={`whitespace-nowrap rounded-full border px-4 py-2 text-base font-semibold shadow-soft transition ${
+                      className={`label whitespace-nowrap rounded-full border px-4 py-2.5 transition ${
                         selectedAlbum === album.id
-                          ? 'border-primary bg-primary text-white'
-                          : 'border-line bg-surface text-ink'
+                          ? 'border-ink bg-ink text-paper'
+                          : 'border-line text-ink-muted'
                       }`}
                     >
-                      {album.emoji} {album.name}
+                      {album.name}
                     </button>
                   ))}
                 </div>
@@ -299,42 +283,38 @@ export default function UploadPage() {
             <textarea
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
-              placeholder="Adiciona uma legenda..."
+              placeholder="Escreve uma legenda…"
               maxLength={200}
               rows={3}
               aria-label="Legenda da foto"
-              className="w-full resize-none rounded-2xl border border-line bg-surface p-4 text-base text-ink outline-none placeholder:text-ink-secondary focus:border-primary focus:ring-2 focus:ring-primary/30"
+              className="w-full resize-none border-b border-line bg-transparent pb-2 font-serif text-[19px] italic text-ink outline-none placeholder:text-ink-faint focus:border-ink"
             />
-            <p className="mb-5 mt-1 pr-1 text-right text-xs text-ink-secondary">{caption.length}/200</p>
+            <p className="label mb-7 mt-2 text-right text-ink-faint">{caption.length}/200</p>
 
             {/* Submit */}
             <button
               type="button"
               onClick={upload}
               disabled={uploading}
-              className="w-full overflow-hidden rounded-full bg-gradient-to-r from-primary to-primary-dark py-4 text-center shadow-card disabled:opacity-90"
+              className="label flex min-h-[52px] w-full items-center justify-center rounded-full bg-ink px-6 text-paper transition active:scale-[0.99] disabled:opacity-50"
             >
               {uploading ? (
-                <div className="flex flex-col items-center gap-2 px-6">
-                  <div className="flex items-center gap-2">
-                    <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                    <span className="font-bold text-white">
-                      A enviar {progress}/{images.length}...
-                    </span>
-                  </div>
-                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/25">
-                    <div
-                      className="h-full rounded-full bg-white transition-all"
-                      style={{ width: `${progressFraction * 100}%` }}
-                    />
-                  </div>
-                </div>
-              ) : (
-                <span className="text-xl font-extrabold text-white">
-                  Partilhar {images.length > 1 ? `${images.length} fotos` : 'com a família'}
+                <span className="flex items-center gap-3">
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-paper/40 border-t-paper" />
+                  A enviar {progress}/{images.length}
                 </span>
+              ) : (
+                `Publicar ${images.length > 1 ? `${images.length} fotografias` : 'no diário'}`
               )}
             </button>
+            {uploading && (
+              <div className="mt-3 h-px w-full overflow-hidden bg-line">
+                <div
+                  className="h-full bg-ink transition-all"
+                  style={{ width: `${progressFraction * 100}%` }}
+                />
+              </div>
+            )}
           </>
         )}
       </div>

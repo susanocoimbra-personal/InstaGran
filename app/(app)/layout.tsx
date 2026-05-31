@@ -17,16 +17,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   if (loading || !session) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex min-h-screen items-center justify-center bg-paper">
         <Spinner />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Bottom padding leaves room for the floating tab bar. */}
-      <div className="pb-28">{children}</div>
+    <div className="min-h-screen bg-paper">
+      {/* Bottom padding leaves room for the fixed tab bar. */}
+      <div className="pb-24">{children}</div>
       <TabBar />
     </div>
   );

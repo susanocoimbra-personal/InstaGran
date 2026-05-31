@@ -16,7 +16,7 @@ export default function Home() {
   }, [session, loading, router]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
+    <div className="flex min-h-screen items-center justify-center bg-paper">
       <Spinner />
     </div>
   );

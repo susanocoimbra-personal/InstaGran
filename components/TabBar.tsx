@@ -7,17 +7,19 @@ import { useAuth } from '@/hooks/useAuth';
 interface Tab {
   href: string;
   label: string;
-  emoji: string;
   parentOnly?: boolean;
+  cta?: boolean;
 }
 
 const TABS: Tab[] = [
-  { href: '/feed', label: 'Início', emoji: '🏠' },
-  { href: '/albums', label: 'Álbuns', emoji: '📁' },
-  { href: '/upload', label: 'Novo', emoji: '📸', parentOnly: true },
-  { href: '/profile', label: 'Eu', emoji: '👤' },
+  { href: '/feed', label: 'Diário' },
+  { href: '/albums', label: 'Álbuns' },
+  { href: '/upload', label: 'Adicionar', parentOnly: true, cta: true },
+  { href: '/profile', label: 'Perfil' },
 ];
 
+// Editorial bottom nav: typographic, letter-spaced caps, one ink-pill CTA.
+// Each item keeps a >=44px hit area for older users.
 export default function TabBar() {
   const pathname = usePathname();
   const { user } = useAuth();
@@ -25,42 +27,27 @@ export default function TabBar() {
   const tabs = TABS.filter((t) => !t.parentOnly || user?.role === 'parent');
 
   return (
-    <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-4 safe-bottom">
-      <div className="pointer-events-auto flex w-full max-w-md items-stretch justify-around rounded-xl border border-white/60 bg-white/95 px-2 py-2 shadow-lift backdrop-blur">
-        {tabs.map((tab) => {
-          const active =
-            pathname === tab.href || (tab.href !== '/feed' && pathname.startsWith(tab.href));
-          const emoji = tab.href === '/profile' ? user?.avatar_emoji || '👤' : tab.emoji;
-          return (
-            <Link
-              key={tab.href}
-              href={tab.href}
-              className="flex flex-1 flex-col items-center justify-center gap-0.5 py-1"
-              aria-current={active ? 'page' : undefined}
-            >
-              <span
-                className={`text-[22px] transition-transform duration-200 ${
-                  active ? 'scale-100' : 'scale-90 opacity-50'
-                }`}
-              >
-                {emoji}
-              </span>
-              <span
-                className={`text-xs font-semibold ${
-                  active ? 'text-primary-dark' : 'text-ink-secondary'
-                }`}
-              >
-                {tab.label}
-              </span>
-              <span
-                className={`mt-0.5 h-[5px] w-[5px] rounded-full bg-primary transition-opacity ${
-                  active ? 'opacity-100' : 'opacity-0'
-                }`}
-              />
-            </Link>
-          );
-        })}
-      </div>
+    <nav className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-around border-t border-line bg-paper/95 px-3 py-2 backdrop-blur safe-bottom">
+      {tabs.map((tab) => {
+        const active =
+          pathname === tab.href || (tab.href !== '/feed' && pathname.startsWith(tab.href));
+        return (
+          <Link
+            key={tab.href}
+            href={tab.href}
+            aria-current={active ? 'page' : undefined}
+            className={
+              tab.cta
+                ? 'label flex min-h-[44px] items-center rounded-full bg-ink px-5 text-paper'
+                : `label flex min-h-[44px] items-center px-3 ${
+                    active ? 'text-ink' : 'text-ink-muted'
+                  }`
+            }
+          >
+            {tab.label}
+          </Link>
+        );
+      })}
     </nav>
   );
 }

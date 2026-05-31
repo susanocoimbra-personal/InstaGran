@@ -1,187 +1,158 @@
 ---
 name: Vovo
-description: Álbum de família privado — fotos da neta partilhadas com amor
+description: O diário privado de fotografias da família — sistema "Editorial"
 colors:
-  primary: "#C4816B"
-  primary-light: "#D9A899"
-  primary-dark: "#A66853"
-  sage: "#8FA68E"
-  background: "#FAF7F4"
-  surface: "#FFFFFF"
-  surface-alt: "#F3EDE7"
-  ink: "#3B3235"
-  ink-secondary: "#7A6E72"
-  ink-light: "#B5AAAE"
-  line: "#EDE6E0"
-  danger: "#D4605A"
-  success: "#6BA588"
-  accent: "#D4A95A"
-  accent-light: "#EDD4A0"
+  paper: "#FFFFFF"
+  paper-dim: "#F6F4F1"
+  ink: "#191614"
+  ink-soft: "#4A443F"
+  ink-muted: "#8A827B"
+  ink-faint: "#B8B0A8"
+  line: "#E7E2DB"
+  clay: "#9C4A2F"
+  danger: "#A23B2D"
 typography:
+  display:
+    fontFamily: "Fraunces, Georgia, serif"
+    fontSize: "40px"
+    fontWeight: 400
+    letterSpacing: "-0.02em"
+  caption:
+    fontFamily: "Fraunces, Georgia, serif"
+    fontSize: "20px"
+    fontWeight: 400
+    fontStyle: "italic"
+  label:
+    fontFamily: "Inter, system-ui, sans-serif"
+    fontSize: "11px"
+    fontWeight: 500
+    letterSpacing: "0.18em"
   body:
-    fontFamily: "Segoe UI, system-ui, -apple-system, Roboto, sans-serif"
+    fontFamily: "Inter, system-ui, sans-serif"
     fontSize: "16px"
     fontWeight: 400
-    lineHeight: 1.5
-  brand:
-    fontFamily: "Segoe UI, system-ui, sans-serif"
-    fontSize: "28px"
-    fontWeight: 800
-    letterSpacing: "-0.02em"
-rounded:
-  md: "12px"
-  lg: "16px"
-  xl: "24px"
-  full: "999px"
 spacing:
-  xs: "4px"
-  sm: "8px"
-  md: "16px"
-  lg: "24px"
-  xl: "32px"
+  page: "24px"
 components:
-  button-primary:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.surface}"
-    rounded: "{rounded.full}"
-    padding: "14px 48px"
-  button-primary-hover:
-    backgroundColor: "{colors.primary-dark}"
-  card:
-    backgroundColor: "{colors.surface}"
-    rounded: "{rounded.lg}"
-    padding: "{spacing.md}"
-  chip:
-    backgroundColor: "{colors.surface}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.full}"
-    padding: "10px 20px"
+  button-ink:
+    backgroundColor: "{colors.ink}"
+    textColor: "{colors.paper}"
   chip-active:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.surface}"
+    backgroundColor: "{colors.ink}"
+    textColor: "{colors.paper}"
 ---
 
 # Design System: Vovo
 
 ## 1. Overview
 
-**Creative North Star: "O Álbum de Família numa Tarde de Sol"**
+**Creative North Star: "O Livro de Fotografia da Família"**
 
-Vovo é um espaço íntimo, não uma rede social. O sistema visual existe para que cinco pessoas que se amam vejam uma bebé a crescer, e cada decisão favorece a proximidade emocional sobre o engagement. A linguagem é o conforto de folhear um álbum de fotografias ao fim da tarde: luz quente, papel macio, cantos arredondados, espaço para respirar. A fotografia da neta é sempre a heroína; a interface recua para a deixar brilhar.
+Vovo é um diário privado impresso: paredes brancas de galeria, tinta quase-preta,
+muito espaço para respirar. As fotografias da neta são a única cor; a interface
+é tipográfica e recua para as deixar respirar. Cada foto é tratada como uma
+impressão numa exposição — com número de prancha, autor e data como etiqueta.
 
-O sistema rejeita dois extremos. Não é uma **app empresarial fria** (sem cinzentos corporativos, sem densidade de SaaS, sem tom neutro) nem **infantil demais** (apesar de ser sobre uma bebé: sem cores primárias berrantes, sem confetti, sem balões). O carinho aqui é adulto e refinado, transmitido pela cor com intenção e pelo espaçamento generoso, não por enfeites colados por cima.
-
-A paleta terracotta + sage é uma identidade de marca **comprometida**: preserva-se mesmo sabendo que o fundo creme é um padrão comum, porque aqui serve o tom e está estabelecido. O calor vem da cor e da tipografia, reforçado pela legibilidade confortável que o público mais velho precisa.
+O sistema rejeita por completo o "look por defeito de AI": **nada de fundo
+creme/terracotta**, nada de cards de gradiente, nada de sombras coloridas. A
+calorosidade vem da serif Fraunces e do ritmo editorial, não da cor.
 
 **Key Characteristics:**
-- Terracotta rosado quente como voz principal, sálvia como complemento natural
-- Fotografia em primeiro plano, UI em segundo
-- Cantos generosamente arredondados (12–24px), nunca duros
-- Espaçamento amplo, alvos de toque grandes, texto confortável
-- Sombras suaves e difusas, nunca duras
+- Branco de galeria + tinta quente quase-preta; um único acento clay, raríssimo
+- Serif de display (Fraunces) para títulos, legendas e wordmark; Inter para labels
+- Etiquetas de exposição em maiúsculas espaçadas (letter-spacing 0.18em)
+- Fotografias como impressões com sombra de contacto (shadow-print)
+- Sem cards, sem gradientes, sem cantos muito arredondados — regras finas e ar
 
 ## 2. Colors
 
-Uma paleta quente de terracotta e sálvia sobre off-whites de linho, com âmbar dourado para momentos de destaque.
+Quase monocromático: branco, rampa de tinta quente, uma linha. O clay é o único
+acento e aparece só em estados de foco/ação raros.
 
 ### Primary
-- **Terracotta Rosado** (#C4816B): a voz principal. Ações primárias (botão Entrar, Partilhar), seleção atual (chips de álbum, ponto da tab ativa), indicadores de estado e reações ativas. Variantes claro (#D9A899) e escuro (#A66853) formam os gradientes quentes dos botões e heros.
-
-### Secondary
-- **Sálvia Suave** (#8FA68E): complemento natural e calmante. Usado com parcimónia; presente sobretudo como acento de equilíbrio à terracotta.
-
-### Tertiary
-- **Âmbar Dourado** (#D4A95A) e **Âmbar Claro** (#EDD4A0): destaques, gradientes de hero (perfil, álbum "Todas as fotos"), momentos de delight.
+- **Tinta** (#191614): texto principal, wordmark, botões e chips ativos. Nunca preto puro.
 
 ### Neutral
-- **Linho** (#FAF7F4): fundo de toda a app. Quente, calmo, papel.
-- **Branco** (#FFFFFF): superfície de cartões, barras, modais.
-- **Linho Profundo** (#F3EDE7): superfície alternativa (placeholders de imagem, chips inativos, círculos de ícone).
-- **Carvão Quente** (#3B3235): texto principal (ink), nunca preto puro.
-- **Carvão Médio** (#7A6E72): texto secundário (datas, legendas, subtítulos).
-- **Cinza Quente Claro** (#B5AAAE): texto terciário, placeholders, dicas.
-- **Linha** (#EDE6E0): bordas e divisórias.
+- **Papel** (#FFFFFF): fundo de toda a app.
+- **Papel-dim** (#F6F4F1): placeholders de imagem, insets subtis.
+- **Tinta-soft** (#4A443F): corpo de texto.
+- **Tinta-muted** (#8A827B): metadados, labels (AA em branco a ≥14px).
+- **Tinta-faint** (#B8B0A8): hairlines-como-texto, desativado.
+- **Linha** (#E7E2DB): regras e divisórias — fazem a maior parte do trabalho de layout.
+
+### Accent
+- **Clay** (#9C4A2F): único acento quente. Só em foco/ação rara. A raridade é o ponto.
 
 ### Named Rules
-**A Regra da Foto Heroína.** Nenhuma cor de marca compete com a fotografia. Cromas saturados aparecem em controlos (botões, chips, reações), nunca como blocos grandes ao lado de uma foto.
+**A Regra da Foto-Única-Cor.** Nenhuma cor de UI compete com a fotografia. A
+interface é tinta sobre papel; a cor entra só pela imagem da neta.
 
-**A Regra do Carvão Quente.** Preto puro (#000) é proibido para texto. Todo o texto assenta na rampa de carvão quente (#3B3235 → #7A6E72 → #B5AAAE), que combina com a luz quente do fundo.
+**A Regra da Linha.** Hierarquia e separação fazem-se com regras finas (#E7E2DB)
+e espaço, não com caixas, sombras ou fundos.
 
 ## 3. Typography
 
-**Body Font:** Segoe UI / system-ui (stack de sistema: SF Pro no iOS, Roboto no Android)
-**Brand wordmark:** mesma família, peso 800
+**Display / Serif:** Fraunces (com Georgia de fallback) — serif de display quente,
+optical-sizing, em pesos 400–600 e itálico.
+**UI / Sans:** Inter (system-ui de fallback) — labels, metadados, botões.
 
-**Character:** Uma única família de sistema, escolhida por familiaridade e legibilidade imediata em qualquer telemóvel. A personalidade vem do peso e da escala, não de uma fonte display. Familiar para olhos mais velhos, rápida a carregar, sem FOUT.
+**Character:** O contraste é o eixo serif↔sans. A serif carrega a alma (títulos,
+legendas itálicas, wordmark); a sans carrega a função em maiúsculas espaçadas.
 
 ### Hierarchy
-- **Brand** (800, 28–48px, line-height 1): a wordmark "Vovo" em terracotta. Login (grande) e cabeçalho do feed.
-- **Headline** (700–800, 20–24px): títulos de ecrã e de modal ("Novo Álbum", "Partilha um momento").
-- **Title** (600–700, 18px): nomes de utilizador, títulos de secção, cabeçalhos de cartão.
-- **Body** (400, 16px, line-height 1.5): legendas, comentários, texto corrido. Confortável, nunca abaixo de 16px.
-- **Label** (600, 10–14px): rótulos da tab bar, contagens, metadados (datas, "há 2h").
+- **Wordmark / Display** (Fraunces 400, 40–64px, tracking -0.02em): masthead "Vovo".
+- **Title** (Fraunces 400, 22–34px): nomes de álbum, nome no perfil, títulos de ecrã.
+- **Caption** (Fraunces italic, 19–22px): legendas de foto e comentários-âncora, entre aspas.
+- **Body** (Inter 400, 16px): texto de comentários, corpo.
+- **Label** (Inter 500, 11px, tracking 0.18em, MAIÚSCULAS): etiquetas, datas, ações, nav.
 
 ### Named Rules
-**A Regra dos 16px.** Texto de corpo nunca desce abaixo de 16px. O público inclui avós; legível sem esforço é um requisito, não uma preferência.
+**A Regra da Etiqueta.** Metadados (autor, data, contagem, ações) são sempre a
+classe `.label`: Inter, maiúsculas, 0.18em. É a voz "de galeria" do produto.
 
 ## 4. Elevation
 
-Sistema de profundidade por **sombras suaves e difusas** sobre o fundo de linho, nunca duras nem escuras. A elevação distingue a superfície branca dos cartões do fundo quente, e levanta a tab bar flutuante e os modais. A profundidade é ambiente (aconchego), não estrutural (hierarquia agressiva).
-
-### Shadow Vocabulary
-- **soft** (`box-shadow: 0 1px 3px rgba(59,50,53,0.06)`): cartões em repouso, chips, círculos de ícone.
-- **card** (`box-shadow: 0 4px 12px rgba(59,50,53,0.08)`): cartões de foto no feed, botões de ação, cartões de álbum.
-- **lift** (`box-shadow: 0 8px 24px rgba(59,50,53,0.12)`): tab bar flutuante, FAB, modais, botão de login.
+Quase plano. A única elevação é a **sombra de impressão** das fotografias
+(`shadow-print`): uma sombra de contacto apertada + uma sombra projetada suave,
+como uma fotografia pousada numa página. Modais usam `shadow-lift`. Tudo o resto
+é plano, separado por regras e espaço.
 
 ### Named Rules
-**A Regra da Sombra Quente.** Todas as sombras usam o carvão quente (#3B3235) a baixa opacidade, nunca preto. Uma sombra cinza-fria sobre fundo quente parece suja.
+**A Regra do Plano.** Só as fotografias (e modais) têm sombra. Botões, chips,
+cabeçalhos e listas são planos.
 
 ## 5. Components
 
 ### Buttons
-- **Shape:** totalmente arredondado (pill, radius 999px) para ações; FAB circular.
-- **Primary:** gradiente terracotta (claro → escuro) ou terracotta sólido, texto branco, padding generoso (14px × 48px), sombra `lift`. Estados: ativo encolhe para 0.98.
-- **Secondary / ghost:** superfície branca ou linho-alt, texto ink, sem gradiente.
+- **Primário (tinta):** pílula `bg-ink text-paper`, label em maiúsculas. Ações primárias e CTA da nav.
+- **Texto:** label em `text-ink`/`text-ink-muted`, sem fundo. A maioria das ações (Guardar, Editar, Apagar, Criar).
 
-### Chips (seletor de álbum, reações)
-- **Style:** pill (radius full), superfície branca com borda de linha, sombra `soft`.
-- **State:** selecionado vira terracotta sólido com texto branco; inativo fica superfície + texto ink.
+### Chips (seletor de álbum)
+- Pílula com borda `line`; ativo vira `bg-ink text-paper`. Label em maiúsculas.
 
-### Cards / Containers
-- **Corner Style:** 16px (cartões), 24px (heros, modais).
-- **Background:** branco sobre fundo de linho.
-- **Shadow Strategy:** `card` em repouso; ver Elevation.
-- **Border:** nenhuma em cartões de foto; linha subtil (#EDE6E0) em cartões de info.
-- **Internal Padding:** 16px base.
+### Photographs (componente-assinatura)
+- Sem cantos arredondados (ou mínimos); `bg-paper-dim` enquanto carrega; `shadow-print`.
+- No feed: largura total da coluna, com etiqueta de prancha por cima e legenda itálica por baixo.
+- Em grelha de álbum: contact-sheet de 2 colunas, rácio 4:5.
 
-### Inputs / Fields
-- **Style:** superfície branca ou linho, borda de linha, radius 16–24px (full para o input de comentário).
-- **Focus:** borda muda para terracotta.
-- **Placeholder:** cinza quente claro (#B5AAAE) — verificar contraste em fundos tingidos.
+### Inputs
+- Sem caixa: `border-b border-line`, fundo transparente, texto serif itálico. Foco → borda tinta.
 
 ### Navigation
-- **Floating tab bar:** barra branca translúcida (95%) com blur, flutuante (margem 16px, afastada do fundo), radius 24px, sombra `lift`. 3–4 separadores conforme o papel (Novo só para pais).
-- **States:** separador ativo = emoji à escala plena + rótulo terracotta + ponto terracotta por baixo; inativo = emoji a 90% e 50% de opacidade, rótulo cinza, sem ponto.
-- **Header:** sticky, fundo de linho translúcido com blur, respeita safe-area no topo.
-
-### Signature Component — Cartão de Foto do Feed
-O coração da app. Cabeçalho com avatar (círculo de cor pastel determinística por nome + emoji), nome e tempo relativo ("há 2h"). Imagem com cantos arredondados e rácio limitado entre 1:1 e 3:4. Legenda. Rodapé com badges de reação (emoji + contagem) e contagem de comentários. Toda a área é tocável e abre o detalhe.
+- Barra inferior tipográfica: labels em maiúsculas espaçadas; item ativo em tinta, inativos em muted; "Adicionar" como pílula de tinta. Cada alvo ≥44px.
 
 ## 6. Do's and Don'ts
 
 ### Do:
-- **Do** deixar a fotografia ser a heroína; a UI recua para a foto da neta brilhar.
-- **Do** usar a rampa de carvão quente para todo o texto e sombras (#3B3235 a baixa opacidade).
-- **Do** manter texto de corpo ≥16px e alvos de toque ≥44×44px (público mais velho).
-- **Do** usar terracotta para ação, seleção e estado — nunca como decoração de bloco.
-- **Do** respeitar `prefers-reduced-motion` em todas as animações (crossfade ou instantâneo).
-- **Do** cantos generosamente arredondados (12–24px) e espaçamento amplo.
+- **Do** deixar a fotografia ser a única cor; UI é tinta sobre papel branco.
+- **Do** usar a serif Fraunces para alma (títulos/legendas) e Inter-caps para função.
+- **Do** separar com regras finas (#E7E2DB) e espaço, não com caixas.
+- **Do** tratar cada foto como uma impressão de exposição (etiqueta + sombra de impressão).
+- **Do** manter alvos de toque ≥44px e texto ≥16px (público mais velho).
 
 ### Don't:
-- **Don't** parecer uma **app empresarial fria**: sem cinzentos corporativos, sem densidade de SaaS, sem dashboards.
-- **Don't** parecer **infantil demais**: sem cores primárias berrantes, sem confetti, sem Comic Sans, sem balões — o carinho é adulto e refinado.
-- **Don't** parecer uma **rede social genérica**: sem métricas de vaidade, sem feed algorítmico, sem frieza de plataforma.
-- **Don't** usar preto puro (#000) em texto ou sombras.
-- **Don't** pôr texto cinza sobre fundos coloridos (terracotta/âmbar); usar branco ou um tom escuro da própria cor.
-- **Don't** deixar cromas de marca competir com a fotografia.
-- **Don't** usar fontes display em rótulos, botões ou dados.
+- **Don't** reintroduzir o fundo **creme/terracotta** nem gradientes quentes (o look-default de AI).
+- **Don't** usar cards com sombra colorida, cantos muito arredondados, ou blocos de cor.
+- **Don't** usar preto puro (#000) — a tinta é #191614.
+- **Don't** pôr cor de UI a competir com a fotografia.
+- **Don't** usar a sans para títulos nem a serif para labels — o contraste é o ponto.
