@@ -72,7 +72,7 @@ export default function LoginPage() {
       <div className="flex w-full max-w-sm animate-rise-in flex-col items-center">
         {/* Masthead */}
         <p className="label mb-5 text-ink-muted">O diário da família</p>
-        <h1 className="font-serif text-[64px] leading-none tracking-wordmark text-ink">Vovo</h1>
+        <h1 className="font-serif text-[64px] leading-none tracking-wordmark text-ink">InstaGran</h1>
 
         {/* Hairline rule with the prompt, like a title page */}
         <div className="mb-10 mt-7 flex w-full items-center gap-4">

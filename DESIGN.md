@@ -1,5 +1,5 @@
----
-name: Vovo
+﻿---
+name: InstaGran
 description: O diário privado de fotografias da família — sistema "Editorial"
 colors:
   paper: "#FFFFFF"
@@ -42,13 +42,13 @@ components:
     textColor: "{colors.paper}"
 ---
 
-# Design System: Vovo
+# Design System: InstaGran
 
 ## 1. Overview
 
 **Creative North Star: "O Livro de Fotografia da Família"**
 
-Vovo é um diário privado impresso: paredes brancas de galeria, tinta quase-preta,
+InstaGran é um diário privado impresso: paredes brancas de galeria, tinta quase-preta,
 muito espaço para respirar. As fotografias da neta são a única cor; a interface
 é tipográfica e recua para as deixar respirar. Cada foto é tratada como uma
 impressão numa exposição — com número de prancha, autor e data como etiqueta.
@@ -100,7 +100,7 @@ optical-sizing, em pesos 400–600 e itálico.
 legendas itálicas, wordmark); a sans carrega a função em maiúsculas espaçadas.
 
 ### Hierarchy
-- **Wordmark / Display** (Fraunces 400, 40–64px, tracking -0.02em): masthead "Vovo".
+- **Wordmark / Display** (Fraunces 400, 40–64px, tracking -0.02em): masthead "InstaGran".
 - **Title** (Fraunces 400, 22–34px): nomes de álbum, nome no perfil, títulos de ecrã.
 - **Caption** (Fraunces italic, 19–22px): legendas de foto e comentários-âncora, entre aspas.
 - **Body** (Inter 400, 16px): texto de comentários, corpo.

@@ -1,4 +1,4 @@
-# Vovo 👶
+﻿# InstaGran 👶
 
 Webapp privada de partilha de fotos de família — para as avós verem a pequenina a crescer.
 Construída em **Next.js + Supabase**, instalável no telemóvel como app (PWA), alojada na **Vercel**.
@@ -51,7 +51,7 @@ Detalhes passo a passo em [`SETUP.md`](SETUP.md).
 4. **Environment Variables** → adiciona:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-5. **Deploy**. Ficas com um URL tipo `https://vovo.vercel.app`.
+5. **Deploy**. Ficas com um URL tipo `https://InstaGran.vercel.app`.
 
 A partir daí, cada `git push` para a branch principal faz deploy automático.
 

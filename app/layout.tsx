@@ -22,13 +22,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Vovo — o diário da família',
+  title: 'InstaGran — o diário da família',
   description: 'Um diário privado de fotografias de família.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Vovo',
+    title: 'InstaGran',
   },
   icons: {
     icon: '/icons/icon-192.png',

@@ -1,4 +1,4 @@
-# Product
+﻿# Product
 
 ## Register
 
@@ -15,7 +15,7 @@ O trabalho a fazer ("job to be done"): manter a família próxima da bebé atrav
 
 ## Product Purpose
 
-Vovo é um espaço **privado** de partilha de fotos de família — não uma rede social. Existe para que as avós e o avô vejam o dia-a-dia da neta sem depender de chats dispersos. Sucesso = as avós abrem a app por hábito e por gosto, e os pais partilham sem esforço.
+InstaGran é um espaço **privado** de partilha de fotos de família — não uma rede social. Existe para que as avós e o avô vejam o dia-a-dia da neta sem depender de chats dispersos. Sucesso = as avós abrem a app por hábito e por gosto, e os pais partilham sem esforço.
 
 Funcionalidades centrais: feed cronológico de fotos, reações (❤️ 😍 …), comentários, álbuns temáticos, upload (só pais). Login por PIN de 6 dígitos — sem emails nem passwords para decorar.
 

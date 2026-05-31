@@ -130,7 +130,7 @@ export default function PhotoDetailPage() {
       const objectUrl = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = objectUrl;
-      a.download = `vovo_${photo.id}.jpg`;
+      a.download = `instagran_${photo.id}.jpg`;
       document.body.appendChild(a);
       a.click();
       a.remove();

@@ -1,8 +1,8 @@
-// Vovo service worker — minimal, network-first.
+// InstaGran service worker — minimal, network-first.
 // Its main job is to make the app installable (PWA criteria). We deliberately
 // avoid aggressively caching API/data so photos and the feed always stay fresh.
 
-const CACHE = 'vovo-shell-v1';
+const CACHE = 'instagran-shell-v1';
 const SHELL = ['/feed', '/login', '/manifest.json'];
 
 self.addEventListener('install', (event) => {

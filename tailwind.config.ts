@@ -1,6 +1,6 @@
 import type { Config } from 'tailwindcss';
 
-// Vovo — "Editorial" design system.
+// InstaGran — "Editorial" design system.
 // A printed family photo-book: white gallery walls, near-black ink, one warm
 // accent used sparingly. The photographs are the colour; the UI is quiet.
 const config: Config = {

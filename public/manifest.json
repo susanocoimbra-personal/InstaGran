@@ -1,6 +1,6 @@
 {
-  "name": "Vovo",
-  "short_name": "Vovo",
+  "name": "InstaGran",
+  "short_name": "InstaGran",
   "description": "Um diário privado de fotografias de família.",
   "start_url": "/feed",
   "scope": "/",

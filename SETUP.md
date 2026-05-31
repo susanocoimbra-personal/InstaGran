@@ -1,11 +1,11 @@
-# Vovo — Guia de Setup
+﻿# InstaGran — Guia de Setup
 
 Passos completos para pôr a webapp a funcionar de raiz.
 
 ## 1. Criar projeto Supabase
 
 1. Vai a [supabase.com](https://supabase.com) e cria conta (grátis).
-2. Cria um novo projeto (nome "vovo"). Guarda:
+2. Cria um novo projeto (nome "InstaGran"). Guarda:
    - **Project URL** → `NEXT_PUBLIC_SUPABASE_URL`
    - **anon / publishable key** → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
@@ -37,11 +37,11 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGci... (ou sb_publishable_...)
 
    | Nome | Email (interno) | PIN |
    |------|-----------------|-----|
-   | Diogo | diogo@vovo.family | 123456 |
-   | Maria | maria@vovo.family | 654321 |
-   | Avó Fátima | avo.fatima@vovo.family | 111111 |
-   | Avó Ana Maria | avo.ana@vovo.family | 222222 |
-   | Avô Luís | avo.luis@vovo.family | 333333 |
+   | Diogo | diogo@instagran.family | 123456 |
+   | Maria | maria@instagran.family | 654321 |
+   | Avó Fátima | avo.fatima@instagran.family | 111111 |
+   | Avó Ana Maria | avo.ana@instagran.family | 222222 |
+   | Avô Luís | avo.luis@instagran.family | 333333 |
 
 3. Copia o UUID de cada utilizador (na lista de Users).
 4. Edita [`supabase/seed_users.sql`](supabase/seed_users.sql) com os UUIDs reais

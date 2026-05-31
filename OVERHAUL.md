@@ -1,4 +1,4 @@
-# Vovo — Overhaul (auditoria multi-agente + QA funcional)
+﻿# InstaGran — Overhaul (auditoria multi-agente + QA funcional)
 
 Sessão autónoma de 2026-05-31. Auditoria de 6 dimensões (35 agentes, verificação adversarial):
 **28 achados confirmados**, 69 minor, 1 falso-positivo. Combinado com QA funcional no browser.
