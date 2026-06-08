@@ -31,3 +31,6 @@ yarn-error.*
 
 # supabase
 supabase/.temp/
+
+# local photo backups (private family photos — never commit, repo is public)
+backup-originais/
