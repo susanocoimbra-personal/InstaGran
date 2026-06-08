@@ -37,8 +37,20 @@ export default function Carousel({
   const goTo = (i: number) => {
     const el = trackRef.current;
     if (!el) return;
-    el.scrollTo({ left: i * el.clientWidth, behavior: 'smooth' });
+    const clamped = Math.max(0, Math.min(i, photos.length - 1));
+    const left = clamped * el.clientWidth;
+    // Update the indicator immediately (don't wait for the scroll event), then
+    // animate. Fall back to an instant jump if smooth scrolling is unsupported.
+    setIndex(clamped);
+    try {
+      el.scrollTo({ left, behavior: 'smooth' });
+    } catch {
+      el.scrollLeft = left;
+    }
   };
+
+  const atStart = index === 0;
+  const atEnd = index === photos.length - 1;
 
   if (photos.length === 1) {
     return (
@@ -60,6 +72,35 @@ export default function Carousel({
       <div className="label pointer-events-none absolute right-3 top-3 z-10 rounded-full bg-ink/70 px-2.5 py-1 text-paper backdrop-blur">
         {index + 1}/{photos.length}
       </div>
+
+      {/* Prev / next arrows (Instagram-style). stopPropagation so tapping an
+          arrow navigates instead of opening the detail view. Hidden at the ends. */}
+      {!atStart && (
+        <button
+          type="button"
+          aria-label="Foto anterior"
+          onClick={(e) => {
+            e.stopPropagation();
+            goTo(index - 1);
+          }}
+          className="absolute left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-paper/80 text-xl leading-none text-ink shadow-print backdrop-blur transition active:scale-90"
+        >
+          ‹
+        </button>
+      )}
+      {!atEnd && (
+        <button
+          type="button"
+          aria-label="Foto seguinte"
+          onClick={(e) => {
+            e.stopPropagation();
+            goTo(index + 1);
+          }}
+          className="absolute right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-paper/80 text-xl leading-none text-ink shadow-print backdrop-blur transition active:scale-90"
+        >
+          ›
+        </button>
+      )}
 
       <div
         ref={trackRef}
