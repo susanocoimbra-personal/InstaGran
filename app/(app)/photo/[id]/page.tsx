@@ -35,6 +35,7 @@ export default function PhotoDetailPage() {
   const [editingCaption, setEditingCaption] = useState(false);
   const [captionDraft, setCaptionDraft] = useState('');
   const [savingCaption, setSavingCaption] = useState(false);
+  const [showReactors, setShowReactors] = useState(false);
 
   const isParent = user?.role === 'parent';
 
@@ -253,28 +254,49 @@ export default function PhotoDetailPage() {
           )}
 
           {/* Reactions — a quiet typographic row */}
-          <div className="flex flex-wrap gap-2 border-t border-line py-4">
-            {REACTION_EMOJIS.map((emoji) => {
-              const group = reactionGroups[emoji];
-              const active = group?.mine;
-              return (
-                <button
-                  key={emoji}
-                  type="button"
-                  onClick={() => handleReaction(emoji)}
-                  aria-pressed={active}
-                  aria-label={`Reagir com ${emoji}`}
-                  className={`flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-full border px-3 transition active:scale-95 ${
-                    active ? 'border-ink bg-ink/[0.04]' : 'border-line'
-                  }`}
-                >
-                  <span key={active ? 'on' : 'off'} className={`text-[20px] ${active ? 'animate-rise-in' : ''}`}>
-                    {emoji}
-                  </span>
-                  {group && <span className="text-sm font-medium text-ink-soft">{group.count}</span>}
-                </button>
-              );
-            })}
+          <div className="border-t border-line py-4">
+            <div className="flex flex-wrap gap-2">
+              {REACTION_EMOJIS.map((emoji) => {
+                const group = reactionGroups[emoji];
+                const active = group?.mine;
+                return (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => handleReaction(emoji)}
+                    aria-pressed={active}
+                    aria-label={`Reagir com ${emoji}`}
+                    className={`flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-full border px-3 transition active:scale-95 ${
+                      active ? 'border-ink bg-ink/[0.04]' : 'border-line'
+                    }`}
+                  >
+                    <span key={active ? 'on' : 'off'} className={`text-[20px] ${active ? 'animate-rise-in' : ''}`}>
+                      {emoji}
+                    </span>
+                    {group && <span className="text-sm font-medium text-ink-soft">{group.count}</span>}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Tap to see who reacted (Instagram-style). */}
+            {reactions.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setShowReactors(true)}
+                aria-label="Ver quem reagiu"
+                className="mt-3 flex min-h-[44px] items-center gap-2 text-ink-muted active:text-ink"
+              >
+                <span className="flex -space-x-1 text-[15px]">
+                  {[...new Set(reactions.map((r) => r.emoji))].slice(0, 5).map((e) => (
+                    <span key={e}>{e}</span>
+                  ))}
+                </span>
+                <span className="label">
+                  {reactions.length === 1 ? '1 reação' : `${reactions.length} reações`}
+                </span>
+              </button>
+            )}
           </div>
 
           {/* Comments */}
@@ -337,6 +359,49 @@ export default function PhotoDetailPage() {
           </button>
         </div>
       </div>
+
+      {/* Who-reacted sheet */}
+      {showReactors && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 sm:items-center"
+          onClick={() => setShowReactors(false)}
+        >
+          <div
+            style={{ ['--safe-pad-bottom' as string]: '24px' }}
+            className="max-h-[70vh] w-full max-w-md overflow-y-auto bg-paper p-6 pb-8 shadow-lift safe-bottom"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-4 flex items-baseline justify-between">
+              <p className="label text-ink-muted">
+                {reactions.length === 1 ? '1 reação' : `${reactions.length} reações`}
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowReactors(false)}
+                aria-label="Fechar"
+                className="label text-ink-muted active:text-ink"
+              >
+                Fechar
+              </button>
+            </div>
+            <ul className="flex flex-col">
+              {[...reactions]
+                .sort((a, b) => (a.user?.name || '').localeCompare(b.user?.name || ''))
+                .map((r) => (
+                  <li key={r.id} className="flex items-center gap-3 border-b border-line py-3 last:border-0">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full border border-line bg-paper-dim text-xl">
+                      {r.user?.avatar_emoji || '👤'}
+                    </span>
+                    <span className="flex-1 font-serif text-[18px] text-ink">
+                      {r.user?.name || 'Família'}
+                    </span>
+                    <span className="text-2xl">{r.emoji}</span>
+                  </li>
+                ))}
+            </ul>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
