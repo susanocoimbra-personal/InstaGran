@@ -130,7 +130,16 @@ export default function PhotoDetailPage() {
       const objectUrl = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = objectUrl;
-      a.download = `instagran_${photo.id}.jpg`;
+      // Friendly filename: "InstaGran 8 jun 2026.jpg" (+ caption if short).
+      // Build the date manually so there are no slashes (illegal in filenames).
+      const d = new Date(photo.created_at);
+      const months = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+      const date = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+      const cap = (photo.caption || '')
+        .replace(/[\\/:*?"<>|\n]+/g, ' ') // strip filename-illegal chars
+        .trim()
+        .slice(0, 40);
+      a.download = `InstaGran ${date}${cap ? ` — ${cap}` : ''}.jpg`;
       document.body.appendChild(a);
       a.click();
       a.remove();
