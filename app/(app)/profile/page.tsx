@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
@@ -136,6 +137,18 @@ export default function ProfilePage() {
           </p>
           <p className="label mt-4 text-ink-muted">Só a nossa família vê o que é partilhado aqui.</p>
         </div>
+
+        {/* Install the app */}
+        <Link
+          href="/instalar"
+          className="flex items-center justify-between gap-4 border-t border-line py-6 active:opacity-70"
+        >
+          <div className="min-w-0">
+            <p className="font-serif text-[18px] text-ink">Instalar a app</p>
+            <p className="label mt-1 text-ink-muted">Pôr a InstaGran no ecrã do telemóvel</p>
+          </div>
+          <span className="label shrink-0 text-ink-muted">Abrir →</span>
+        </Link>
 
         {/* Notifications (this device) */}
         {canPush && (
