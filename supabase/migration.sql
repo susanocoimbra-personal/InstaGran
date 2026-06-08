@@ -280,7 +280,43 @@ create policy "Parents can delete from photos bucket"
     and exists (select 1 from public.users where id = auth.uid() and role = 'parent')
   );
 
--- 8. ENABLE REALTIME
+-- 8. PUSH SUBSCRIPTIONS (Web Push / VAPID)
+-- One row per device a user enabled notifications on. The edge function reads
+-- these (with the service role) to send a notification when a new photo lands.
+create table if not exists public.push_subscriptions (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references public.users(id) on delete cascade not null,
+  endpoint text not null unique,
+  p256dh text not null,
+  auth text not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.push_subscriptions enable row level security;
+
+-- A user manages only their own subscriptions.
+create policy "Users manage own push subscriptions"
+  on public.push_subscriptions for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+-- Pin user_id to the JWT identity on insert (defence in depth).
+create or replace function public.enforce_push_sub_user_id()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.user_id := auth.uid();
+  return new;
+end;
+$$;
+
+drop trigger if exists push_sub_user_id_guard on public.push_subscriptions;
+create trigger push_sub_user_id_guard
+  before insert on public.push_subscriptions
+  for each row execute function public.enforce_push_sub_user_id();
+
+-- 9. ENABLE REALTIME
 alter publication supabase_realtime add table public.photos;
 alter publication supabase_realtime add table public.comments;
 alter publication supabase_realtime add table public.reactions;

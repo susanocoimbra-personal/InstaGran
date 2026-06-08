@@ -9,6 +9,7 @@ import Spinner from '@/components/Spinner';
 import Carousel from '@/components/Carousel';
 import { groupPhotos } from '@/lib/groupPhotos';
 import { useIncrementalReveal } from '@/hooks/useIncrementalReveal';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { formatPlateDate } from '@/lib/format';
 import type { FeedPost } from '@/types/database';
 
@@ -111,9 +112,27 @@ export default function FeedPage() {
   const total = posts.length;
   const plate = (i: number) => String(total - i).padStart(2, '0');
 
+  // Pull down at the top of the feed to refresh (touch devices).
+  const { pull, refreshing: pulling } = usePullToRefresh(refresh);
+  const pullActive = pull > 0 || pulling;
+
   return (
     <>
       <AppHeader title="Feed" avatar />
+
+      {/* Pull-to-refresh indicator: grows as you pull, spins while refreshing. */}
+      <div
+        className="flex items-center justify-center overflow-hidden text-ink-muted transition-[height] duration-150"
+        style={{ height: pulling ? 44 : Math.min(44, pull * 44) }}
+        aria-hidden={!pullActive}
+      >
+        <span
+          className={`text-xl ${pulling ? 'animate-spin' : ''}`}
+          style={{ opacity: pullActive ? 1 : 0, transform: pulling ? 'none' : `rotate(${pull * 270}deg)` }}
+        >
+          ↻
+        </span>
+      </div>
 
       <div className="mx-auto max-w-2xl px-6 sm:px-8">
         <div className="flex items-center justify-end pt-4">

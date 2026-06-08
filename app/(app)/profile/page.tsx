@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
 import AppHeader from '@/components/AppHeader';
+import { enablePush, disablePush, isPushEnabled, pushSupported, pushConfigured } from '@/lib/push';
 import type { User } from '@/types/database';
 
 function roleLabel(role: string) {
@@ -29,6 +30,29 @@ export default function ProfilePage() {
   const [draftName, setDraftName] = useState('');
   const [draftEmoji, setDraftEmoji] = useState('👤');
   const [saving, setSaving] = useState(false);
+
+  // Push notifications state for this device.
+  const [pushOn, setPushOn] = useState(false);
+  const [pushBusy, setPushBusy] = useState(false);
+  const canPush = pushSupported() && pushConfigured();
+
+  useEffect(() => {
+    if (canPush) isPushEnabled().then(setPushOn);
+  }, [canPush]);
+
+  const togglePush = async () => {
+    if (!user || pushBusy) return;
+    setPushBusy(true);
+    if (pushOn) {
+      await disablePush();
+      setPushOn(false);
+    } else {
+      const { ok, error } = await enablePush(user.id);
+      if (ok) setPushOn(true);
+      else if (error) alert(error);
+    }
+    setPushBusy(false);
+  };
 
   // Real family members from the DB (replaces the old hardcoded list).
   // `active` guards against a state write after unmount.
@@ -112,6 +136,34 @@ export default function ProfilePage() {
           </p>
           <p className="label mt-4 text-ink-muted">Só a nossa família vê o que é partilhado aqui.</p>
         </div>
+
+        {/* Notifications (this device) */}
+        {canPush && (
+          <div className="flex items-center justify-between gap-4 border-t border-line py-6">
+            <div className="min-w-0">
+              <p className="font-serif text-[18px] text-ink">Notificações</p>
+              <p className="label mt-1 text-ink-muted">
+                {pushOn ? 'Avisamos-te quando há fotos novas' : 'Recebe um aviso quando há fotos novas'}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={togglePush}
+              disabled={pushBusy}
+              aria-pressed={pushOn}
+              aria-label={pushOn ? 'Desligar notificações' : 'Ligar notificações'}
+              className={`relative h-7 w-12 shrink-0 rounded-full transition disabled:opacity-50 ${
+                pushOn ? 'bg-ink' : 'bg-line'
+              }`}
+            >
+              <span
+                className={`absolute top-1 h-5 w-5 rounded-full bg-paper shadow-print transition-all ${
+                  pushOn ? 'left-6' : 'left-1'
+                }`}
+              />
+            </button>
+          </div>
+        )}
 
         {/* Sign out */}
         <div className="border-t border-line py-6">
