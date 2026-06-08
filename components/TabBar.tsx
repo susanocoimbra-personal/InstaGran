@@ -23,6 +23,11 @@ export default function TabBar() {
   const pathname = usePathname();
   const { user } = useAuth();
 
+  // The photo detail screen has its own fixed footer (the comment bar), so the
+  // nav would sit on top of it. Hide the nav there — that screen uses the
+  // header's back button to return.
+  if (pathname.startsWith('/photo/')) return null;
+
   const tabs = TABS.filter((t) => !t.parentOnly || user?.role === 'parent');
 
   return (

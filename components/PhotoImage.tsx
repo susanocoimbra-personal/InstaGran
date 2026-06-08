@@ -46,6 +46,7 @@ export default function PhotoImage({ path, alt, className = '', fit = 'cover', w
       src={src}
       alt={alt}
       loading="lazy"
+      decoding="async"
       onLoad={() => setLoaded(true)}
       onError={() => {
         if (usingTransform) {

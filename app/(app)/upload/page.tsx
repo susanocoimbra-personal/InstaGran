@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
 import { useAlbums } from '@/hooks/useAlbums';
+import { compressImage } from '@/lib/compressImage';
 import AppHeader from '@/components/AppHeader';
 
 const MAX_IMAGES = 20;
@@ -95,14 +96,20 @@ export default function UploadPage() {
         if (!session) throw new Error('A tua sessão terminou. Entra outra vez para continuar.');
 
         const img = images[i];
-        const ext = (img.file.name.split('.').pop() || 'jpg').toLowerCase();
+        // Downscale + re-encode before upload so phone photos don't ship as
+        // multi-MB files. Falls back to the original if compression can't help.
+        const compressed = await compressImage(img.file);
+        const isJpeg = compressed.blob.type === 'image/jpeg' || compressed.blob === img.file;
+        const ext = compressed.blob === img.file
+          ? (img.file.name.split('.').pop() || 'jpg').toLowerCase()
+          : 'jpg';
         const fileName = `${user.id}/${Date.now()}_${i}.${ext}`;
-        const arrayBuffer = await img.file.arrayBuffer();
+        const arrayBuffer = await compressed.blob.arrayBuffer();
 
         const { error: uploadError } = await supabase.storage
           .from('photos')
           .upload(fileName, arrayBuffer, {
-            contentType: img.file.type || `image/${ext === 'jpg' ? 'jpeg' : ext}`,
+            contentType: compressed.blob.type || (isJpeg ? 'image/jpeg' : `image/${ext}`),
             upsert: false,
           });
         if (uploadError) throw new Error(`Foto ${i + 1} de ${images.length}: ${uploadError.message}`);
@@ -113,8 +120,9 @@ export default function UploadPage() {
           // Caption goes on the first photo of a batch (the carousel anchor).
           caption: i === 0 ? caption.trim() || null : null,
           album_id: selectedAlbum,
-          width: img.width || null,
-          height: img.height || null,
+          // Use the compressed dimensions (fall back to the originally read ones).
+          width: compressed.width || img.width || null,
+          height: compressed.height || img.height || null,
         };
         if (groupId) row.group_id = groupId;
 

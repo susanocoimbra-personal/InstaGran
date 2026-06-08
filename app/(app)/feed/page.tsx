@@ -8,6 +8,7 @@ import AppHeader from '@/components/AppHeader';
 import Spinner from '@/components/Spinner';
 import Carousel from '@/components/Carousel';
 import { groupPhotos } from '@/lib/groupPhotos';
+import { useIncrementalReveal } from '@/hooks/useIncrementalReveal';
 import { formatPlateDate } from '@/lib/format';
 import type { FeedPost } from '@/types/database';
 
@@ -102,6 +103,10 @@ export default function FeedPage() {
   // Group photos uploaded together into single carousel posts.
   const posts = useMemo(() => groupPhotos(photos), [photos]);
 
+  // Only render the posts near the viewport; reveal more on scroll. This keeps
+  // the browser from fetching every photo at once on a long diary.
+  const { visible, hasMore, sentinelRef } = useIncrementalReveal(posts, 4);
+
   // Newest post gets the highest plate number, like a growing diary.
   const total = posts.length;
   const plate = (i: number) => String(total - i).padStart(2, '0');
@@ -137,7 +142,7 @@ export default function FeedPage() {
           <EmptyState isParent={user?.role === 'parent'} />
         ) : (
           <div className="pt-6">
-            {posts.map((post, i) => (
+            {visible.map((post, i) => (
               <Plate
                 key={post.anchor.id}
                 post={post}
@@ -146,6 +151,11 @@ export default function FeedPage() {
                 onOpen={() => router.push(`/photo/${post.anchor.id}`)}
               />
             ))}
+            {hasMore && (
+              <div ref={sentinelRef} className="flex justify-center py-8">
+                <Spinner />
+              </div>
+            )}
           </div>
         )}
       </div>
