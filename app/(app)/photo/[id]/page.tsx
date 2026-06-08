@@ -131,16 +131,22 @@ export default function PhotoDetailPage() {
       const objectUrl = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = objectUrl;
-      // Friendly filename: "InstaGran 8 jun 2026.jpg" (+ caption if short).
-      // Build the date manually so there are no slashes (illegal in filenames).
+      // Friendly but SAFE filename: "InstaGran 8 jun 2026.jpg". Emojis, accents
+      // and punctuation in a caption can make Android/the gallery refuse to open
+      // the saved file, so we keep the name to plain ASCII letters/numbers,
+      // spaces and hyphens only — and always end in .jpg.
       const d = new Date(photo.created_at);
       const months = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
       const date = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
       const cap = (photo.caption || '')
-        .replace(/[\\/:*?"<>|\n]+/g, ' ') // strip filename-illegal chars
+        .normalize('NFD')
+        .replace(/[̀-ͯ]/g, '') // drop accents (á → a)
+        .replace(/[^a-zA-Z0-9 -]/g, '') // keep only safe ASCII chars (removes emojis, punctuation)
+        .replace(/\s+/g, ' ')
         .trim()
-        .slice(0, 40);
-      a.download = `InstaGran ${date}${cap ? ` — ${cap}` : ''}.jpg`;
+        .slice(0, 40)
+        .trim();
+      a.download = `InstaGran ${date}${cap ? ` ${cap}` : ''}.jpg`;
       document.body.appendChild(a);
       a.click();
       a.remove();
